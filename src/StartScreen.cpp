@@ -66,9 +66,16 @@ void StartScreen::UpdateStartScreen()
 {
     if (Button000Pressed)
     {
-        std::vector<std::shared_ptr<ActiveGame>> listOfActiveGames = mActiveGameManager.GetListOfActiveGames();
-        mGame = Game(GameMode::JOIN, std::string(username), listOfActiveGames[ListView000ScrollIndex]->GetGameName(), listOfActiveGames[ListView000ScrollIndex]->GetServer());
-        GameModeSelectionMade = true;
+        if (usernameLetterCount > 0)
+        {
+            std::vector<std::shared_ptr<ActiveGame>> listOfActiveGames = mActiveGameManager.GetListOfActiveGames();
+            mGame = Game(GameMode::JOIN, std::string(username), listOfActiveGames[ListView000ScrollIndex]->GetGameName(), listOfActiveGames[ListView000ScrollIndex]->GetServer());
+            GameModeSelectionMade = true;
+        }
+        else
+        {
+            spdlog::get("stderr")->error("StartScreen::StartScreen() - Use valid username.");
+        }
     }
 
     if( !GameModeSelectionMade )
@@ -131,8 +138,15 @@ void StartScreen::UpdateStartScreen()
 
         if (IsKeyPressed(KEY_ENTER))
         {
-            mGame = Game(GameMode::START, std::string(username), std::string(gameName), std::string(""));
-            GameModeSelectionMade = true;
+            if (usernameLetterCount > 0 && gameNameLetterCount > 0)
+            {
+                mGame = Game(GameMode::START, std::string(username), std::string(gameName), std::string(""));
+                GameModeSelectionMade = true;
+            }
+            else
+            {
+                spdlog::get("stderr")->error("StartScreen::StartScreen() - Use valid username and game name.");
+            }
         }
 
         // Get pressed key (character) on the queue
