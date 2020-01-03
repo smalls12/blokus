@@ -1,0 +1,158 @@
+syntax="proto3";
+package blokus;
+
+// the user will specify the location of the server first
+
+// ================================================================================
+// setup
+// ================================================================================
+
+enum PlayerColor {
+    BLOKUS_BLUE = 0;
+    BLOKUS_RED = 1;
+    BLOKUS_GREEN = 2;
+    BLOKUS_YELLOW = 3;
+}
+
+message Player {
+    PlayerColor color = 1;
+    uint32 id = 2;
+    string username = 3;
+}
+
+// the user will then attempt to join the game hosted at said server
+message RegisterReq {
+    string username = 1;
+    string uuid = 2;
+}
+
+// return information about this client
+// this information is set by the server
+message RegisterResp {
+    Player player = 1;
+    string uuid = 2;
+}
+
+// send the list of ll connected players
+message StartGameReq {
+    repeated Player players = 1;
+}
+
+message StartGameResp {
+}
+
+// ================================================================================
+// gameplay
+// ================================================================================
+// once the game has been started the current user (whos turn it is) will submit game moves to the server
+// the server will replicate these moves to the other users
+
+// enum reference to the piece that was moved
+enum Piece {
+    I5 = 0;
+    N = 1;
+    V5 = 2;
+    T5 = 3;
+    U = 4;
+    L5 = 5;
+    Y = 6;
+    Z5 = 7;
+    W = 8;
+    P = 9;
+    X = 10;
+    Z4 = 11;
+    I4 = 12;
+    L4 = 13;
+    O = 14;
+    T4 = 15;
+    I3 = 16;
+    V3 = 17;
+    I2 = 18;
+    I1 = 19;
+}
+
+// the location on the board where the piece has moved
+message Location {
+    uint32 x_position = 1;
+    uint32 y_position = 2;
+}
+
+message PlayerMoveReq {
+    // id representing who's turn it is
+    uint32 id = 1;
+}
+
+message PlayerMoveResp {
+    // id representing the move by the current user
+    uint32 id = 1;
+
+    // this represents their move
+    Piece piece = 2;
+    Location location = 3;
+}
+
+// synchronize the other players with moves from other clients
+message PlayerMoveSyncReq {
+    // id representing the move by the user
+    uint32 id = 1;
+
+    // this represents their move
+    Piece piece = 2;
+    Location location = 3;
+}
+
+message PlayerMoveSyncResp {
+    // blank response
+}
+
+// ================================================================================
+// teardown
+// ================================================================================
+message EndGameReq {
+    // id representing who won
+    uint32 id = 1;
+}
+
+message EndGameResp {
+    // blank response
+}
+
+enum Type {
+    REGISTER = 0;
+    START_GAME = 1;
+    PLAYER_MOVE = 2;
+    PLAYER_MOVE_SYNC = 3;
+    END_GAME = 4;
+}
+
+message Request {
+    Type type = 1;
+    RegisterReq register_req = 2;
+    StartGameReq start_game_req = 3;
+    PlayerMoveReq player_move_req = 4;
+    PlayerMoveSyncReq player_move_sync_req = 5;
+    EndGameReq end_game_req = 6;
+}
+
+message Response {
+    Type type = 1;
+    RegisterResp register_resp = 2;
+    StartGameResp start_game_resp = 3;
+    PlayerMoveResp player_move_resp = 4;
+    PlayerMoveSyncResp player_move_sync_resp = 5;
+    EndGameResp end_game_resp = 6;
+}
+
+message Message {
+    // this enum tracks the type of message
+    enum MsgType {
+        REQUEST = 0;
+        RESPONSE = 1;
+    }
+
+    MsgType type = 1;
+    string uuid = 2; // uuid of sender
+    Request request = 3;
+    Response response = 4; 
+    
+}
