@@ -21,49 +21,22 @@ ENDIF()
 
 # add_subdirectory( examples )
 
-set( src_blokus_threading
-     src/Task.cpp
-     src/TaskProcessor.cpp
-)
-
-add_library( ${PROJECT_NAME}_threading OBJECT ${src_blokus_threading} )
-
-target_include_directories( ${PROJECT_NAME}_threading PRIVATE include )
-
-set( src_blokus_networking
-     src/ActiveGame.cpp
-     src/ActiveGameManager.cpp
-     src/ProcessEvent.cpp
-     src/Game.cpp
-     src/JoinLobby.cpp
-     src/StartGame.cpp
-     src/FindGame.cpp
-     src/JoinGame.cpp
-     src/RegisterForGame.cpp
-     src/BroadcastPlayerMove.cpp
-     src/GameNotification.cpp
-     src/ReadGameNotification.cpp
-     src/WaitForServerNode.cpp
-     src/RegisterResponse.cpp
-     src/NetworkConnection.cpp
-)
-
-add_library( ${PROJECT_NAME}_networking OBJECT ${src_blokus_networking} )
-
-target_include_directories( ${PROJECT_NAME}_networking PRIVATE include )
-target_include_directories( ${PROJECT_NAME}_networking PRIVATE src )
-
-set( src_blokus_protobuf
-     src/Message.cpp
-     src/protobuf/blokus.pb.cc
-)
-
-add_library( ${PROJECT_NAME}_protobuf OBJECT ${src_blokus_protobuf} )
-
-target_include_directories( ${PROJECT_NAME}_protobuf PRIVATE include )
-target_include_directories( ${PROJECT_NAME}_protobuf PRIVATE src )
-
 set ( src_blokus
+      src/Message.cpp
+      src/protobuf/blokus.pb.cc
+      src/Task.cpp
+      src/TaskProcessor.cpp
+      src/ActiveGame.cpp
+      src/ActiveGameManager.cpp
+      src/Game.cpp
+      src/FindGame.cpp
+      src/RegisterForGame.cpp
+      src/GameNotification.cpp
+      src/ReadGameNotification.cpp
+      src/WaitForServerNode.cpp
+      src/Register.cpp
+      src/RegisterResponse.cpp
+      src/Network.cpp
       src/PlayerManager.cpp
       src/Player.cpp
       src/PieceMove.cpp
@@ -81,12 +54,9 @@ set ( src_blokus
       src/main.cpp
 )
 
-add_executable( ${PROJECT_NAME} ${src_blokus}
-$<TARGET_OBJECTS:${PROJECT_NAME}_threading>
-$<TARGET_OBJECTS:${PROJECT_NAME}_networking>
-$<TARGET_OBJECTS:${PROJECT_NAME}_protobuf>
-)
+add_executable( ${PROJECT_NAME} ${src_blokus} )
 
+target_include_directories( ${PROJECT_NAME} PRIVATE interface )
 target_include_directories( ${PROJECT_NAME} PRIVATE include )
 target_include_directories( ${PROJECT_NAME} PRIVATE src )
 
@@ -123,16 +93,22 @@ set ( src_blokus_test
       src/Padding.cpp
       src/Point.cpp
       src/Task.cpp
+      src/GameNotification.cpp
+      src/ReadGameNotification.cpp
+      test/TestSuiteSetup.cpp
       test/TestSuiteCalculatePadding.cpp
       test/TestSuiteTask.cpp
+      test/TestSuiteReadGameNotification.cpp
 )
 
 add_executable( test_blokus ${src_blokus_test} )
 
+target_include_directories( test_blokus PRIVATE interface )
 target_include_directories( test_blokus PRIVATE include )
 
 target_link_libraries( test_blokus gtest )
 target_link_libraries( test_blokus gtest_main )
+target_link_libraries( test_blokus gmock )
 
 # LOGGING
 target_link_libraries( test_blokus spdlog )
