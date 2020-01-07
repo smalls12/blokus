@@ -1,38 +1,65 @@
 #include "ReadGameNotification.hpp"
 
-ReadGameNotification::ReadGameNotification(NetworkConnection& connection, std::string gameName)
-:   mConnection(connection),
+ReadGameNotification::ReadGameNotification(INetworkReceive& receive, std::string gameName)
+:   mReceive(receive),
     mGameName(gameName)
 {
-    // spdlog::get("console")->debug("ReadGameNotification::ReadGameNotification");
-    SPDLOG_DEBUG("ReadGameNotification::ReadGameNotification() - Start");
-
-    mPoller = zpoller_new(zyre_socket(mConnection.Get()), NULL);
+    spdlog::get("console")->debug("ReadGameNotification::ReadGameNotification()");
 }
 
 ReadGameNotification::~ReadGameNotification()
 {
-    // spdlog::get("console")->debug("ReadGameNotification::~ReadGameNotification");
-    SPDLOG_DEBUG("ReadGameNotification::~ReadGameNotification() - Start");
-    
-    zpoller_destroy(&mPoller);
+    spdlog::get("console")->debug("ReadGameNotification::~ReadGameNotification()");
 }
 
 bool ReadGameNotification::CheckEvent()
 {
-    // spdlog::get("console")->debug("ReadGameNotification::CheckEvent() - Start");
-    SPDLOG_DEBUG("ReadGameNotification::CheckEvent() - Start");
+    spdlog::get("console")->debug("ReadGameNotification::CheckEvent() - Start");
+    return mReceive.Poll();
+}
 
-    zsock_t *which = (zsock_t *)zpoller_wait(mPoller, 0);
-    if( !which )
+bool ReadGameNotification::Receive(GameNotification& gm)
+{
+    spdlog::get("console")->trace("ReadGameNotification::Receive() - Start");
+
+    std::vector<std::string> message;
+    if( mReceive.Receive(mGameName, message) )
     {
-        // spdlog::get("console")->debug("ReadGameNotification::operator() - No event.");
-        SPDLOG_DEBUG("ReadGameNotification::CheckEvent() - No event.");
+        NotificationType nt = NotificationType::UNKNOWN;
+        if (message[2] == "JOIN")
+        {
+            nt = NotificationType::JOIN;
+        }
+        else if (message[2] == "LEAVE")
+        {
+            nt = NotificationType::LEAVE;
+        }
+        else if (message[2] == "SHOUT")
+        {
+            nt = NotificationType::MESSAGE;
+        }
+        else if (message[2] == "WHISPER")
+        {
+            nt = NotificationType::MESSAGE;
+        }
+        else if (message[2] == "EVASIVE")
+        {
+            nt = NotificationType::EVASIVE;
+        }
+        else if (message[2] == "SILENT")
+        {
+            nt = NotificationType::SILENT;
+        }
+        else
+        {
+            spdlog::get("console")->warn("ReadGameNotification::Receive() - Event not handled.");
+        }
+
+        gm = GameNotification(message[0], message[1], nt, message[3]);
+        return true;
+    }
+    else
+    {
         return false;
     }
-
-    // zpoller_expired
-    // zpoller_terminated
-
-    return true;
 }

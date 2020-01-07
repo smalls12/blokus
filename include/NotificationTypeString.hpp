@@ -22,29 +22,9 @@ class NotificationTypeString
                     sstream << "LEAVE";
                     break;
                 }
-                case NotificationType::SHOUT:
+                case NotificationType::MESSAGE:
                 {
-                    sstream << "SHOUT";
-                    break;
-                }
-                case NotificationType::WHISPER:
-                {
-                    sstream << "WHISPER";
-                    break;
-                }
-                case NotificationType::ENTER:
-                {
-                    sstream << "ENTER";
-                    break;
-                }
-                case NotificationType::EXIT:
-                {
-                    sstream << "EXIT";
-                    break;
-                }
-                case NotificationType::LEADER:
-                {
-                    sstream << "LEADER";
+                    sstream << "MESSAGE";
                     break;
                 }
                 case NotificationType::EVASIVE:
@@ -55,11 +35,6 @@ class NotificationTypeString
                 case NotificationType::SILENT:
                 {
                     sstream << "SILENT";
-                    break;
-                }
-                case NotificationType::STOP:
-                {
-                    sstream << "STOP";
                     break;
                 }
                 case NotificationType::UNKNOWN:

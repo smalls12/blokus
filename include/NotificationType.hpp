@@ -4,13 +4,8 @@ enum class NotificationType
 {
     JOIN = 0,
     LEAVE,
-    SHOUT,
-    WHISPER,
-    ENTER,
-    EXIT,
-    LEADER,
+    MESSAGE,
     EVASIVE,
     SILENT,
-    STOP,
     UNKNOWN
 };

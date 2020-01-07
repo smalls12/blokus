@@ -7,6 +7,7 @@
 class GameNotification
 {
     public:
+        GameNotification();
         GameNotification(std::string name, std::string uuid, NotificationType type, std::string data);
         ~GameNotification();
 
