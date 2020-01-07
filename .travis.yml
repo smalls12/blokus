@@ -1,0 +1,9 @@
+language: cpp
+sudo: required
+compiler:
+- gcc
+branches:
+  only:
+  - master
+notifications:
+  email: false
