@@ -1,9 +1,13 @@
 #include "RegisterResponse.hpp"
 
-RegisterResponse::RegisterResponse(NetworkConnection& connection, std::string username, std::string gameName)
-:   mConnection(connection),
+#include "spdlog/spdlog.h"
+
+RegisterResponse::RegisterResponse(INetworkConfigure& config, INetworkSend& send, std::string username, std::string gameName, IRegisterMessage& message)
+:   mConfig(config),
+    mSend(send),
     mUsername(username),
-    mGameName(gameName)
+    mGameName(gameName),
+    mMessage(message)
 {
     spdlog::get("console")->debug("RegisterResponse::RegisterResponse()");
 }
@@ -13,24 +17,28 @@ RegisterResponse::~RegisterResponse()
     spdlog::get("console")->debug("RegisterResponse::~RegisterResponse()");
 }
 
-bool RegisterResponse::SendRegisterResponse(blokus::Message message)
+bool RegisterResponse::SendRegistrationSuccessfulResponse(IRegistrationSuccessful& successful)
 {
-    spdlog::get("console")->debug("RegisterResponse::SendRegisterResponse() - Start");
+    spdlog::get("console")->debug("RegisterResponse::SendRegistrationSuccessfulResponse() - Start");
 
-    // build message
-    blokus::Message response = Message::BuildRegisterResp(PlayerColor::BLUE, 1, mUsername);
-    response.set_uuid(message.uuid());
+    std::string message = mMessage.BuildRegistrationResponseMessage(successful);
 
-    // send to server
-    // serialize the protobuf message
-    size_t size = response.ByteSizeLong(); 
-    void *buffer = malloc(size);
-    response.SerializeToArray(buffer, size);
+    mSend.Send(mGameName, message);
 
-    int rc = 0;
-    rc = zyre_shouts(mConnection.Get(), mGameName.c_str(), "%s", (char *)buffer);
+    spdlog::get("console")->debug("RegisterResponse::SendRegistrationSuccessfulResponse() - Done");
 
-    spdlog::get("console")->debug("RegisterResponse::SendRegisterResponse() - Done");
+    return true;
+}
+
+bool RegisterResponse::SendRegistrationUnsuccessfulResponse(IRegistrationUnsuccessful& unsuccessful)
+{
+    spdlog::get("console")->debug("RegisterResponse::SendRegistrationUnsuccessfulResponse() - Start");
+
+    std::string message = mMessage.BuildRegistrationResponseMessage(unsuccessful);
+
+    mSend.Send(mGameName, message);
+
+    spdlog::get("console")->debug("RegisterResponse::SendRegistrationUnsuccessfulResponse() - Done");
 
     return true;
 }

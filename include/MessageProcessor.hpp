@@ -1,26 +1,30 @@
 #pragma once
 
-// protobuf header
-#include <protobuf/blokus.pb.h>
+#include "IRegisterMessage.hpp"
+
+#include "IRegisterRequest.hpp"
+#include "IRegistrationSuccessful.hpp"
+#include "IRegistrationUnsuccessful.hpp"
 
 #include "spdlog/spdlog.h"
 
 class MessageProcessor
 {
     public:
-        MessageProcessor();
+        MessageProcessor(IRegisterMessage& message);
         ~MessageProcessor();
 
         bool ProcessMessage(std::string data);
-        bool SetReceiveEndpoint(blokus::Type type, std::function<bool(blokus::Message, blokus::Message&)> func);
-        bool SetResponseEndpoint(blokus::Type type, std::function<bool(blokus::Message)> func);
+
+        void SetRegisterRequestEndpoint(std::function<bool(IRegisterRequest&)> func) { mRegistrationRequestEndpoint = func; }
+        void SetRegistrationSuccessfulEndpoint(std::function<bool(IRegistrationSuccessful&)> func) { mRegistrationSuccessfulEndpoint = func; }
+        void SetRegistrationUnsuccessfulEndpoint(std::function<bool(IRegistrationUnsuccessful&)> func) { mRegistrationUnsuccessfulEndpoint = func; }
 
     private:
-        bool ProcessRequest(blokus::Message in, blokus::Message& out);
-        bool ProcessResponse(blokus::Message in);
+        std::function<bool(IRegisterRequest&)>               mRegistrationRequestEndpoint;
+        std::function<bool(IRegistrationSuccessful&)>        mRegistrationSuccessfulEndpoint;
+        std::function<bool(IRegistrationUnsuccessful&)>      mRegistrationUnsuccessfulEndpoint;
 
-        std::map<blokus::Type, std::function<bool(blokus::Message, blokus::Message&)>>            mReceiveEndpoints;
-        std::map<blokus::Type, std::function<bool(blokus::Message)>>            mResponseEndpoints;
-        std::mutex                                                              mEndpointsMutex;
+        IRegisterMessage&       mMessage;
 
 };

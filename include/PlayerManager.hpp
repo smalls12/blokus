@@ -7,10 +7,8 @@
 
 
 --------------------------------------------------------------- */
-
-// protobuf header
-#include <protobuf/blokus.pb.h>
-
+ 
+#include "RegisterResponse.hpp"
 #include "Player.hpp"
 
 #include <vector>
@@ -21,18 +19,21 @@
 class PlayerManager
 {
     public:
-        PlayerManager();
+        PlayerManager(RegisterResponse& registerResponse);
         ~PlayerManager();
 
         bool GetPlayer(std::string uuid, std::shared_ptr<Player>& player);
         std::vector<std::shared_ptr<Player>> GetListOfPlayers();
         bool AddPlayerToGame(std::string uuid, std::shared_ptr<Player> player);
         bool RemovePlayerFromGame(std::string uuid);
+        bool RemovePlayerFromGame(IRegistrationUnsuccessful& request);
 
-        bool RegisterPlayer(blokus::Message in);
-        bool RegisterPlayer(blokus::Message in, blokus::Message& out);
+        bool RegisterLocalPlayer(IRegistrationSuccessful& request);
+        bool RegisterRemotePlayer(IRegisterRequest& request);
 
     private:
+        RegisterResponse&                                   mRegisterResponse;
+        
         std::map<std::string, std::shared_ptr<Player>>      mPlayers;
         std::mutex                                          mPlayersMutex;
         

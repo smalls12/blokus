@@ -1,26 +1,22 @@
 #pragma once
 
-#include "NetworkConnection.hpp"
+#include "INetworkConfigure.hpp"
+#include "INetworkSend.hpp"
 #include "Message.hpp"
-
-#include "spdlog/spdlog.h"
 
 class RegisterResponse
 {
     public:
-        RegisterResponse(NetworkConnection& connection, std::string username, std::string gameName);
+        RegisterResponse(INetworkConfigure& config, INetworkSend& send, std::string username, std::string gameName, IRegisterMessage& message);
         ~RegisterResponse();
 
-        // overload function call
-        void operator()(std::string username)
-        {
-            
-        }
-
-        bool SendRegisterResponse(blokus::Message message);
+        bool SendRegistrationSuccessfulResponse(IRegistrationSuccessful& successful);
+        bool SendRegistrationUnsuccessfulResponse(IRegistrationUnsuccessful& unsuccessful);
 
     private:
-        NetworkConnection&  mConnection;
+        INetworkConfigure&  mConfig;
+        INetworkSend&       mSend;
         std::string         mUsername;
         std::string         mGameName;
+        IRegisterMessage&   mMessage;
 };

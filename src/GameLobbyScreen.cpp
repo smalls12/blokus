@@ -145,36 +145,41 @@ void GameLobbyScreen::CheckForNotification()
 {
     if( mReadGameNotification.CheckEvent() )
     {
-        GameNotification gn = mReadGameNotification();
-
-        std::stringstream ss;
-        ss << gn;
-        spdlog::get("console")->trace("GameLobbyScreen::UpdateGameLobbyDrawFrame() - Received notification [ {} ]", ss.str());
-
-        switch(gn.getType())
+        GameNotification gn;
+        if( mReadGameNotification.Receive(gn) )
         {
-            case NotificationType::JOIN:
+            std::stringstream ss;
+            ss << gn;
+            spdlog::get("console")->trace("GameLobbyScreen::UpdateGameLobbyDrawFrame() - Received notification [ {} ]", ss.str());
+
+            switch(gn.getType())
             {
-                auto newPlayer = std::make_shared<Player>( gn.getName(), gn.getUuid(), 2 );
-                mPlayerManager.AddPlayerToGame(gn.getUuid(), newPlayer);
-                break;
+                case NotificationType::JOIN:
+                {
+                    auto newPlayer = std::make_shared<Player>( gn.getName(), gn.getUuid(), 2 );
+                    mPlayerManager.AddPlayerToGame(gn.getUuid(), newPlayer);
+                    break;
+                }
+                case NotificationType::LEAVE:
+                {
+                    mPlayerManager.RemovePlayerFromGame(gn.getUuid());
+                    break;
+                }
+                case NotificationType::MESSAGE:
+                {
+                    mMessageProcessor.ProcessMessage(gn.getData());
+                    break;
+                }
+                default:
+                {
+                    spdlog::get("console")->warn("GameLobbyScreen::UpdateGameLobbyDrawFrame() - Unknown notification [ {} ]");
+                    break;
+                }
             }
-            case NotificationType::LEAVE:
-            {
-                mPlayerManager.RemovePlayerFromGame(gn.getUuid());
-                break;
-            }
-            case NotificationType::WHISPER:
-            case NotificationType::SHOUT:
-            {
-                mMessageProcessor.ProcessMessage(gn.getData());
-                break;
-            }
-            default:
-            {
-                spdlog::get("console")->warn("GameLobbyScreen::UpdateGameLobbyDrawFrame() - Unknown notification [ {} ]");
-                break;
-            }
+        }
+        else
+        {
+            spdlog::get("stderr")->warn("GameLobbyScreen::UpdateGameLobbyDrawFrame() - Unknown notification [ {} ]");
         }
     }
 }

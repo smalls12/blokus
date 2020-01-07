@@ -5,28 +5,30 @@
 // protobuf header
 #include <protobuf/blokus.pb.h>
 
+#include "IRegisterMessage.hpp"
+#include "MessageType.hpp"
+#include "IRegisterRequest.hpp"
+
 #include <Player.hpp>
 #include <PieceMove.hpp>
 
-class Message {
+class Message : public IRegisterMessage
+{
+    public:
+        Message();
+        ~Message();
 
-public:
-    static blokus::Message BuildRegisterReq(const std::string username, std::string uuid);
-    static blokus::Message BuildRegisterResp(PlayerColor color, uint32_t id, std::string username);
+        // ==============================================================================================================
+        // Registration
+        // ==============================================================================================================
+        std::string BuildRegistrationRequestMessage(IRegisterRequest& message);
+        std::string BuildRegistrationResponseMessage(IRegistrationSuccessful& message);
+        std::string BuildRegistrationResponseMessage(IRegistrationUnsuccessful& message);
 
-    static blokus::Message BuildStartGameReq(const std::vector<Player *> players);
-    static blokus::Message BuildStartGameResp();
+        bool ParseRegistrationRequestMessage(std::string message, IRegisterRequest& request);
+        bool ParseRegistrationResponseMessage(std::string message, IRegistrationSuccessful& sucessful, IRegistrationUnsuccessful& unsuccesful);
+        // ==============================================================================================================
 
-    static blokus::Message BuildPlayerMoveReq();
-    static blokus::Message BuildPlayerMoveResp(const PieceMove *move);
-
-    static blokus::Message BuildPlayerMoveSyncReq(const PieceMove *move);
-    static blokus::Message BuildPlayerMoveSyncResp();
-
-    static blokus::Message BuildEndGameReq();
-    static blokus::Message BuildEndGameResp();
-
-private:
-    Message();
-    ~Message();
+    private:
+        
 };
