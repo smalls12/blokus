@@ -8,7 +8,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-7
-      - protobuf
+      - protobuf-compiler
 
 script:
   - export CC=gcc-7
