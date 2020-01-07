@@ -14,8 +14,5 @@ script:
   - export CC=gcc-7
   - export CXX=g++-7
   - cmake --version
-  - cmake -DProtobuf_USE_STATIC_LIBS=ON -DProtobuf_LIBRARY=/usr/lib/libprotobuf.so \
-  -DProtobuf_INCLUDE_DIR=/usr/include \
-	-DProtobuf_PROTOC_EXECUTABLE=/usr/bin/protoc \
-  -DProtobuf_PROTOC_LIBRARY=/usr/lib/libprotoc.a CMakeLists.txt
+  - cmake -DProtobuf_USE_STATIC_LIBS=ON -DProtobuf_LIBRARY=/usr/lib/libprotobuf.so -DProtobuf_INCLUDE_DIR=/usr/include -DProtobuf_PROTOC_EXECUTABLE=/usr/bin/protoc -DProtobuf_PROTOC_LIBRARY=/usr/lib/libprotoc.a CMakeLists.txt
   - cmake  --build . --target neat
