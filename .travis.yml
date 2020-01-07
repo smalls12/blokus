@@ -9,6 +9,10 @@ addons:
     packages:
       - g++-7
       - protobuf-compiler
+  homebrew:
+    packages:
+      - protobuf
+    update: true
 
 script:
   - export CC=gcc-7
