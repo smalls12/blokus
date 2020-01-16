@@ -131,12 +131,12 @@ int Network::Send(std::string groupName, std::string message)
 // Send to the network
 bool Network::Poll()
 {
-    spdlog::get("console")->info("Network::Poll()");
+    spdlog::get("console")->trace("Network::Poll()");
 
     zsock_t *which = (zsock_t *)zpoller_wait(mPoller, 0);
     if( !which )
     {
-        spdlog::get("stderr")->error("ReadGameNotification::operator() - No event.");
+        // spdlog::get("stderr")->error("ReadGameNotification::operator() - No event.");
         return false;
     }
 

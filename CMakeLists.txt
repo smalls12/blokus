@@ -23,6 +23,7 @@ ENDIF()
 
 set ( src_blokus
       src/Message.cpp
+      src/MessageBase.cpp
       src/protobuf/blokus.pb.cc
       src/Task.cpp
       src/TaskProcessor.cpp
@@ -31,9 +32,10 @@ set ( src_blokus
       src/Game.cpp
       src/FindGame.cpp
       src/RegisterForGame.cpp
+      src/StartGame.cpp
+      src/StartGameRequest.cpp
       src/GameNotification.cpp
       src/ReadGameNotification.cpp
-      src/WaitForServerNode.cpp
       src/Register.cpp
       src/RegisterResponse.cpp
       src/Network.cpp
@@ -50,7 +52,12 @@ set ( src_blokus
       src/MessageProcessor.cpp
       src/GameScreen.cpp
       src/StartScreen.cpp
+      src/GameLobby.cpp
       src/GameLobbyScreen.cpp
+      src/StartGameLobbyScreen.cpp
+      src/PlayerMoveRequest.cpp
+      src/PlayerMoveRequestData.cpp
+      src/ProcessPlayerMove.cpp
       src/main.cpp
 )
 

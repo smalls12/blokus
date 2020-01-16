@@ -69,7 +69,11 @@ void StartScreen::UpdateStartScreen()
         if (usernameLetterCount > 0)
         {
             std::vector<std::shared_ptr<ActiveGame>> listOfActiveGames = mActiveGameManager.GetListOfActiveGames();
-            mGame = Game(GameMode::JOIN, std::string(username), listOfActiveGames[ListView000ScrollIndex]->GetGameName(), listOfActiveGames[ListView000ScrollIndex]->GetServer());
+            mGame.SetGameMode(GameMode::JOIN);
+            mGame.SetGameConfiguration(GameConfiguration::TWO_PLAYER);
+            mGame.SetUsername(std::string(username));
+            mGame.SetGameName(listOfActiveGames[ListView000ScrollIndex]->GetGameName());
+            mGame.SetServer(listOfActiveGames[ListView000ScrollIndex]->GetServer());
             GameModeSelectionMade = true;
         }
         else
@@ -140,7 +144,11 @@ void StartScreen::UpdateStartScreen()
         {
             if (usernameLetterCount > 0 && gameNameLetterCount > 0)
             {
-                mGame = Game(GameMode::START, std::string(username), std::string(gameName), std::string(""));
+                mGame.SetGameMode(GameMode::START);
+                mGame.SetGameConfiguration(GameConfiguration::TWO_PLAYER);
+                mGame.SetUsername(std::string(username));
+                mGame.SetGameName(std::string(gameName));
+                mGame.SetServer(std::string(""));
                 GameModeSelectionMade = true;
             }
             else

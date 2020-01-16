@@ -40,9 +40,6 @@ message RegisterResp {
 message StartGameReq {
 }
 
-message StartGameResp {
-}
-
 // ================================================================================
 // gameplay
 // ================================================================================
@@ -80,31 +77,12 @@ message Location {
 }
 
 message PlayerMoveReq {
-    // id representing who's turn it is
-    uint32 id = 1;
-}
-
-message PlayerMoveResp {
     // id representing the move by the current user
     uint32 id = 1;
 
     // this represents their move
     Piece piece = 2;
     Location location = 3;
-}
-
-// synchronize the other players with moves from other clients
-message PlayerMoveSyncReq {
-    // id representing the move by the user
-    uint32 id = 1;
-
-    // this represents their move
-    Piece piece = 2;
-    Location location = 3;
-}
-
-message PlayerMoveSyncResp {
-    // blank response
 }
 
 // ================================================================================
@@ -115,16 +93,11 @@ message EndGameReq {
     uint32 id = 1;
 }
 
-message EndGameResp {
-    // blank response
-}
-
 enum Type {
     REGISTER = 0;
     START_GAME = 1;
     PLAYER_MOVE = 2;
-    PLAYER_MOVE_SYNC = 3;
-    END_GAME = 4;
+    END_GAME = 3;
 }
 
 message Request {
@@ -132,8 +105,7 @@ message Request {
     RegisterReq register_req = 2;
     StartGameReq start_game_req = 3;
     PlayerMoveReq player_move_req = 4;
-    PlayerMoveSyncReq player_move_sync_req = 5;
-    EndGameReq end_game_req = 6;
+    EndGameReq end_game_req = 5;
 }
 
 message Response {
@@ -141,10 +113,6 @@ message Response {
     bool success = 2;
 
     RegisterResp register_resp = 3;
-    StartGameResp start_game_resp = 4;
-    PlayerMoveResp player_move_resp = 5;
-    PlayerMoveSyncResp player_move_sync_resp = 6;
-    EndGameResp end_game_resp = 7;
 }
 
 message Message {

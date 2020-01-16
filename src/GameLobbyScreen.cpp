@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-
 extern "C" {
 #include "raylib.h"
 
@@ -40,15 +35,14 @@ namespace
 
     int ListView000ScrollIndex = 0;
     int ListView000Active = 0;
-
-    bool CheckBoxEx000Checked = false;
 }
 
-GameLobbyScreen::GameLobbyScreen(GameMode gameMode,
+GameLobbyScreen::GameLobbyScreen(IGameSettings& settings,
                                  MessageProcessor& messageProcessor,
                                  ReadGameNotification& readGameNotification,
                                  PlayerManager& playerManager)
-:   mMode(gameMode),
+:   mReadyToStart(false),
+    mSettings(settings),
     mMessageProcessor(messageProcessor),
     mReadGameNotification(readGameNotification),
     mPlayerManager(playerManager)
@@ -58,7 +52,17 @@ GameLobbyScreen::GameLobbyScreen(GameMode gameMode,
 
 GameLobbyScreen::~GameLobbyScreen()
 {
-    spdlog::get("console")->info("GameLobbyScreen::GameLobbyScreen() - Start");
+    spdlog::get("console")->info("GameLobbyScreen::~GameLobbyScreen() - Start");
+}
+
+bool GameLobbyScreen::ReadyToStart()
+{
+    mReadyToStart = true;
+}
+
+void GameLobbyScreen::UpdateReadyToStart()
+{
+    // not implemented
 }
 
 void GameLobbyScreen::UpdatePlayersInLobby()
@@ -94,6 +98,7 @@ void GameLobbyScreen::UpdateCircleGraphic()
 
 void GameLobbyScreen::UpdateGameLobbyScreen()
 {
+    UpdateReadyToStart();
     UpdateCircleGraphic();
     UpdatePlayersInLobby();
 }
@@ -120,7 +125,12 @@ void GameLobbyScreen::DrawPlayersInLobby()
 
 void GameLobbyScreen::DrawGameMode()
 {
-    CheckBoxEx000Checked = GuiCheckBox((Rectangle){ 100, screenHeight - 20, 12, 12 }, "4-Player Mode ( Default 2 )", CheckBoxEx000Checked);
+    // not implemented
+}
+
+void GameLobbyScreen::DrawReadyToStart()
+{
+    // not implemented
 }
 
 void GameLobbyScreen::DrawGameLobbyScreen()
@@ -136,8 +146,10 @@ void GameLobbyScreen::DrawGameLobbyScreen()
 
     DrawPlayersInLobby();
     DrawCircleGraphic();
+
     DrawGameMode();
-    
+    DrawReadyToStart();
+
     EndDrawing();
 }
 
@@ -187,7 +199,7 @@ void GameLobbyScreen::CheckForNotification()
 // Update and Draw (one frame)
 void GameLobbyScreen::UpdateGameLobbyDrawFrame(void)
 {
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose() && !mReadyToStart)    // Detect window close button or ESC key
     {
         CheckForNotification();
         UpdateGameLobbyScreen();

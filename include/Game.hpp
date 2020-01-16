@@ -1,34 +1,36 @@
 #pragma once
 
+#include "IGameSettings.hpp"
 #include "GameMode.hpp"
+#include "GameConfiguration.hpp"
 
 #include "spdlog/spdlog.h"
 
-class Game
+class Game : public IGameSettings
 {
     public:
         Game();
-        Game(GameMode mode, std::string userName, std::string gameName, std::string server);
         ~Game();
 
-        // overload function call
-        void operator()()
-        {
-            spdlog::get("console")->debug("Game::operator() - Start");
-
-            spdlog::get("console")->debug("Game::operator() - Done");
-
-            return;
-        }
-
+        void SetGameMode(GameMode mode) { mMode = mode; }
         GameMode GetGameMode() { return mMode; }
+
+        void SetGameConfiguration(GameConfiguration configuration) { mConfiguration = configuration; }
+        GameConfiguration GetGameConfiguration() { return mConfiguration; }
+
+        void SetUsername(std::string username) { mUsername = username; }
         std::string GetUsername() { return mUsername; }
+
+        void SetGameName(std::string gameName) { mGameName = gameName; }
         std::string GetGameName() { return mGameName; }
-        std::string GetServer() { return mServer; }
+
+        void SetServer(std::string server) { mServer = server; }
+        std::string GetServer() { return mServer; }        
 
     private:
-        GameMode        mMode;
-        std::string     mUsername;
-        std::string     mGameName;
-        std::string     mServer;
+        GameMode            mMode;
+        GameConfiguration   mConfiguration;
+        std::string         mUsername;
+        std::string         mGameName;
+        std::string         mServer;
 };

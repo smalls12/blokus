@@ -11,20 +11,31 @@
 class MessageProcessor
 {
     public:
-        MessageProcessor(IRegisterMessage& message);
+        MessageProcessor();
         ~MessageProcessor();
 
         bool ProcessMessage(std::string data);
 
+        // Registration
         void SetRegisterRequestEndpoint(std::function<bool(IRegisterRequest&)> func) { mRegistrationRequestEndpoint = func; }
         void SetRegistrationSuccessfulEndpoint(std::function<bool(IRegistrationSuccessful&)> func) { mRegistrationSuccessfulEndpoint = func; }
         void SetRegistrationUnsuccessfulEndpoint(std::function<bool(IRegistrationUnsuccessful&)> func) { mRegistrationUnsuccessfulEndpoint = func; }
 
+        // Start Game
+        void SetStartGameEndpoint(std::function<bool()> func) { mStartGameEndpoint = func; }
+
+        // Player Move
+        void SetPlayerMoveEndpoint(std::function<bool()> func) { mPlayerMoveEndpoint = func; }
+
     private:
-        std::function<bool(IRegisterRequest&)>               mRegistrationRequestEndpoint;
-        std::function<bool(IRegistrationSuccessful&)>        mRegistrationSuccessfulEndpoint;
-        std::function<bool(IRegistrationUnsuccessful&)>      mRegistrationUnsuccessfulEndpoint;
+        // Registration
+        std::function<bool(IRegisterRequest&)>                  mRegistrationRequestEndpoint;
+        std::function<bool(IRegistrationSuccessful&)>           mRegistrationSuccessfulEndpoint;
+        std::function<bool(IRegistrationUnsuccessful&)>         mRegistrationUnsuccessfulEndpoint;
 
-        IRegisterMessage&       mMessage;
+        // Start Game
+        std::function<bool()>                                   mStartGameEndpoint;
 
+        // Player Move
+        std::function<bool()>                                   mPlayerMoveEndpoint;
 };

@@ -1,39 +1,24 @@
 #include "Piece.hpp"
 
-Piece::Piece(Point offset, Padding padding, Layout layout)
+#include "spdlog/spdlog.h"
+
+Piece::Piece(Point offset, Padding padding, Layout layout, PieceType type)
 :   mOffset(offset),
     mPadding(padding),
-    mLayout(layout)
+    mLayout(layout),
+    mType(type)
 {
+    // spdlog::get("console")->info("Piece::Piece()");
+}
+
+Piece::Piece()
+{
+    // spdlog::get("console")->info("Piece::Piece()");
 
 }
 
-Point Piece::GetOffset()
+Piece::~Piece()
 {
-    return mOffset;
-}
+    // spdlog::get("console")->info("Piece::~Piece()");
 
-Padding Piece::GetPadding()
-{
-    return mPadding;
-}
-
-Layout Piece::GetLayout()
-{
-    return mLayout;
-}
-
-void Piece::SetOffset(Point point)
-{
-    mOffset = point;
-}
-
-void Piece::SetPadding(Padding padding)
-{
-    mPadding = padding;
-}
-
-void Piece::SetLayout(Layout layout)
-{
-    mLayout = layout;
 }

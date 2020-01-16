@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameMode.hpp"
+#include "IGameSettings.hpp"
 #include "MessageProcessor.hpp"
 #include "ReadGameNotification.hpp"
 #include "PlayerManager.hpp"
@@ -12,28 +12,35 @@
 class GameLobbyScreen
 {
     public:
-        GameLobbyScreen(GameMode mode,
+        GameLobbyScreen(IGameSettings& settings,
                         MessageProcessor& messageProcessor,
                         ReadGameNotification& readGameNotification,
                         PlayerManager& playerManager);
         ~GameLobbyScreen();
 
+        bool ReadyToStart();
         void Show();
 
+    protected:
+        bool mReadyToStart;
+
+        IGameSettings&              mSettings;
+        MessageProcessor&           mMessageProcessor;
+        ReadGameNotification&       mReadGameNotification;
+        PlayerManager&              mPlayerManager;
+
     private:
+        virtual void UpdateReadyToStart();
+        virtual void DrawGameMode();
+        virtual void DrawReadyToStart();
+
         void UpdatePlayersInLobby();
         void UpdateCircleGraphic();
         void UpdateGameLobbyScreen();
         void DrawGameLobbyScreen();
         void DrawCircleGraphic();
         void DrawPlayersInLobby();
-        void DrawGameMode();
         void ParseMessage(GameNotification gn);
         void CheckForNotification();
         void UpdateGameLobbyDrawFrame();
-
-        GameMode                    mMode;
-        MessageProcessor&           mMessageProcessor;
-        ReadGameNotification&       mReadGameNotification;
-        PlayerManager&              mPlayerManager;
 };

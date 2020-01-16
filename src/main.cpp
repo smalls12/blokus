@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-
 extern "C" {
 #include "raylib.h"
 
@@ -13,19 +8,30 @@ extern "C" {
 #include "Network.hpp"
 
 #include "StartScreen.hpp"
-#include "GameLobbyScreen.hpp"
 
-#include "TaskProcessor.hpp"
+#include "GameLobby.hpp"
+#include "GameLobbyScreen.hpp"
+#include "StartGameLobbyScreen.hpp"
+#include "GameScreen.hpp"
+
 #include "FindGame.hpp"
 #include "ActiveGameManager.hpp"
 
 #include "PlayerManager.hpp"
-#include "RegisterForGame.hpp" 
-#include "WaitForServerNode.hpp"
-#include "RegisterResponse.hpp"
-#include "MessageProcessor.hpp"
+
+#include "MessageBase.hpp"
 
 #include "Register.hpp"
+#include "RegisterForGame.hpp" 
+#include "RegisterResponse.hpp"
+
+#include "MessageProcessor.hpp"
+
+#include "StartGame.hpp"
+#include "StartGameRequest.hpp"
+
+#include "PlayerMoveRequest.hpp"
+#include "ProcessPlayerMove.hpp"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -57,116 +63,144 @@ Game ShowStartScreen()
     return gm;
 }
 
-void ShowGameLobbyScreen(Game gm)
+void ShowGameLobby_StartGame(Game gm)
 {
-    if ( gm.GetGameMode() == GameMode::START )
-    {
-        spdlog::get("console")->info("Blokus::Starting Game [ {} ]!", gm.GetGameName());
+    spdlog::get("console")->info("Blokus::Starting Game [ {} ]!", gm.GetGameName());
 
-        // create network connection
-        Network network(gm.GetUsername());
-        network.Connect();
-        network.Configure(gm.GetGameName());
-        network.Start();
-        network.JoinGroup(gm.GetGameName());
+    // create network connection
+    Network network(gm.GetUsername());
+    network.Connect();
+    network.Configure(gm.GetGameName());
+    network.Start();
+    network.JoinGroup(gm.GetGameName());
 
-        Message m;
+    GameLobby gameLobby(gm, network);
 
-        // object that will respond to registration requests
-        RegisterResponse rr(network, network, gm.GetUsername(), gm.GetGameName(), m);
+    Message m;
 
-        // create player manager
-        PlayerManager pm(rr);
+    // object that will respond to registration requests
+    RegisterResponse rr(network, network, gm.GetUsername(), gm.GetGameName(), m);
 
-        // create local user
-        auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier(), 1 );
+    // create player manager
+    PlayerManager pm(rr);
 
-        // add local user to player manager
-        pm.AddPlayerToGame(network.GetUniqueIdentifier(), myself);
+    // create local user
+    auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier(), 1 );
 
-        // create message processor
-        MessageProcessor mp(m);
+    // add local user to player manager
+    pm.AddPlayerToGame(network.GetUniqueIdentifier(), myself);
 
-        // add an endpoint
-        // in this case we are interested in responding to registration requests
-        // mp.SetReceiveEndpoint(blokus::REGISTER, std::bind(static_cast<bool(PlayerManager::*)(blokus::Message, blokus::Message&)>(&PlayerManager::RegisterPlayer), &pm, _1, _2));
-        // mp.SetResponseEndpoint(blokus::REGISTER, std::bind(&RegisterResponse::SendRegisterResponse, &rr, _1));
-        mp.SetRegisterRequestEndpoint(std::bind(&PlayerManager::RegisterRemotePlayer, &pm, _1));
-        
-        // create read game notification object
-        ReadGameNotification rgn(network, gm.GetGameName());
+    // create message processor
+    MessageProcessor mp;
 
-        // create game lobby
-        GameLobbyScreen gameLobbyScreen(gm.GetGameMode(), mp, rgn, pm);
+    // add an endpoint
+    // in this case we are interested in responding to registration requests
+    mp.SetRegisterRequestEndpoint(std::bind(&PlayerManager::RegisterRemotePlayer, &pm, _1));
+    // mp.SetStartGameEndpoint();
 
-        // display the screen on the gui
-        gameLobbyScreen.Show();
+    // build start game object
+    MessageBase startGameMessageBase(network);
+    StartGameRequest startGameRequest(m, startGameMessageBase);
+    StartGame sg(network, startGameRequest);
 
-        network.Stop();
-        network.LeaveGroup(gm.GetGameName());
-        network.Disconnect();
-    }
-    else if (gm.GetGameMode() == GameMode::JOIN )
-    {
-        spdlog::get("console")->info("Blokus::Joining Game [ {} ]!", gm.GetGameName());
+    // build player move object
+    MessageBase playerMoveMessageBase(network);
+    PlayerMoveRequest playerMoveRequest(m, playerMoveMessageBase);
+    ProcessPlayerMove processPlayerMove(gameLobby, playerMoveRequest);
 
-        // create network connection
-        Network network(gm.GetUsername());
-        network.Connect();
-        network.Start();
-        network.JoinGroup(gm.GetGameName());
+    // create read game notification object
+    ReadGameNotification rgn(network, gm.GetGameName());
 
-        Message m;
+    // create game lobby
+    StartGameLobbyScreen startGameLobbyScreen(gm, mp, rgn, pm, sg);
 
-        // object that will respond to registration requests
-        RegisterResponse rr(network, network, gm.GetUsername(), gm.GetGameName(), m);
+    // display the start screen on the gui
+    startGameLobbyScreen.Show();
 
-        // create player manager
-        PlayerManager pm(rr);
+    // create the game screen
+    GameScreen gameScreen(gm, mp, rgn, pm, processPlayerMove);
+    
+    mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen));
 
-        // create local user
-        auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier(), 1 );
+    // display the game screen on the gui
+    gameScreen.Show();
 
-        // add local user to player manager
-        pm.AddPlayerToGame(network.GetUniqueIdentifier(), myself);
+    network.Stop();
+    network.LeaveGroup(gm.GetGameName());
+    network.Disconnect();
+}
 
-        // create message processor
-        MessageProcessor mp(m);
+void ShowGameLobby_JoinGame(Game gm)
+{
+    spdlog::get("console")->info("Blokus::Joining Game [ {} ]!", gm.GetGameName());
 
-        // add an endpoint
-        // in this case we are interested in the response to a registration request
-        // mp.SetResponseEndpoint(blokus::REGISTER, std::bind(static_cast<bool(PlayerManager::*)(blokus::Message)>(&PlayerManager::RegisterPlayer), &pm, _1));
-        mp.SetRegistrationSuccessfulEndpoint(std::bind(&PlayerManager::RegisterLocalPlayer, &pm, _1));
-        mp.SetRegistrationUnsuccessfulEndpoint(std::bind(static_cast<bool(PlayerManager::*)(IRegistrationUnsuccessful&)>(&PlayerManager::RemovePlayerFromGame), &pm, _1));
+    // create network connection
+    Network network(gm.GetUsername());
+    network.Connect();
+    network.Start();
+    network.JoinGroup(gm.GetGameName());
 
-        // create read game notification object
-        ReadGameNotification rgn(network, gm.GetGameName());
+    GameLobby gameLobby(gm, network);
 
-        // build internal registration object
-        Register _register;
-        _register.SetUsername(gm.GetUsername());
-        _register.SetUuid(network.GetUniqueIdentifier());
+    Message m;
 
-        // object used to send register requests
-        RegisterForGame rfg(network, _register, m);
+    // object that will respond to registration requests
+    RegisterResponse rr(network, network, gm.GetUsername(), gm.GetGameName(), m);
 
-        // perform registration request
-        rfg.Register(gm.GetGameName());
+    // create player manager
+    PlayerManager pm(rr);
 
-        // create game lobby
-        GameLobbyScreen gameLobbyScreen(gm.GetGameMode(), mp, rgn, pm);
+    // create local user
+    auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier(), 1 );
 
-        // display the screen on the gui
-        gameLobbyScreen.Show();
+    // add local user to player manager
+    pm.AddPlayerToGame(network.GetUniqueIdentifier(), myself);
+    
+    // create read game notification object
+    ReadGameNotification rgn(network, gm.GetGameName());
 
-        network.Stop();
-        network.LeaveGroup(gm.GetGameName());
-        network.Disconnect();
-    }
-    else
-    {
-        spdlog::get("stderr")->error("Blokus::Start Screen error! Closing...");
-    }
+    // build internal registration object
+    Register _register;
+    _register.SetUsername(gm.GetUsername());
+    _register.SetUuid(network.GetUniqueIdentifier());
+
+    // object used to send register requests
+    RegisterForGame rfg(network, _register, m);
+
+    // perform registration request
+    rfg.Register(gm.GetGameName());
+
+    // create message processor
+    MessageProcessor mp;
+
+    // create game lobby
+    GameLobbyScreen gameLobbyScreen(gm, mp, rgn, pm);
+
+    // add an endpoint
+    // in this case we are interested in the response to a registration request
+    mp.SetRegistrationSuccessfulEndpoint(std::bind(&PlayerManager::RegisterLocalPlayer, &pm, _1));
+    mp.SetRegistrationUnsuccessfulEndpoint(std::bind(static_cast<bool(PlayerManager::*)(IRegistrationUnsuccessful&)>(&PlayerManager::RemovePlayerFromGame), &pm, _1));
+    mp.SetStartGameEndpoint(std::bind(&GameLobbyScreen::ReadyToStart, &gameLobbyScreen));
+
+    // display the start screen on the gui
+    gameLobbyScreen.Show();
+
+    // build player move object
+    MessageBase playerMoveMessageBase(network);
+    PlayerMoveRequest playerMoveRequest(m, playerMoveMessageBase);
+    ProcessPlayerMove processPlayerMove(gameLobby, playerMoveRequest);
+
+    // create the game screen
+    GameScreen gameScreen(gm, mp, rgn, pm, processPlayerMove);
+
+    mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen));
+
+    // display the game screen on the gui
+    gameScreen.Show();
+
+    network.Stop();
+    network.LeaveGroup(gm.GetGameName());
+    network.Disconnect();
 }
 
 int main(int argc, char **argv)
@@ -187,9 +221,26 @@ int main(int argc, char **argv)
     InitWindow(screenWidth, screenHeight, "Blokus");
 
     Game gm = ShowStartScreen();
-    
-    ShowGameLobbyScreen(gm);
 
+    switch( gm.GetGameMode() )
+    {
+        case GameMode::START:
+        {
+            ShowGameLobby_StartGame(gm);
+            break;
+        }
+        case GameMode::JOIN:
+        {
+            ShowGameLobby_JoinGame(gm);
+            break;
+        }
+        default:
+        {
+            spdlog::get("stderr")->error("Blokus::Start Screen error! Closing...");
+            break;
+        }
+    }
+    
     CloseWindow();
 
     spdlog::get("console")->info("Blokus::Done");

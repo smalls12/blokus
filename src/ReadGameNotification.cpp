@@ -14,7 +14,7 @@ ReadGameNotification::~ReadGameNotification()
 
 bool ReadGameNotification::CheckEvent()
 {
-    spdlog::get("console")->debug("ReadGameNotification::CheckEvent() - Start");
+    spdlog::get("console")->trace("ReadGameNotification::CheckEvent() - Start");
     return mReceive.Poll();
 }
 

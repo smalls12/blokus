@@ -5,14 +5,22 @@
 // protobuf header
 #include <protobuf/blokus.pb.h>
 
-#include "IRegisterMessage.hpp"
 #include "MessageType.hpp"
+
+#include "IMessageBase.hpp"
+
+#include "IRegisterMessage.hpp"
 #include "IRegisterRequest.hpp"
+
+#include "IStartGameMessage.hpp"
+
+#include "IPlayerMoveMessage.hpp"
+#include "IPlayerMoveRequestData.hpp"
 
 #include <Player.hpp>
 #include <PieceMove.hpp>
 
-class Message : public IRegisterMessage
+class Message : public IRegisterMessage, public IStartGameMessage, public IPlayerMoveMessage
 {
     public:
         Message();
@@ -29,6 +37,24 @@ class Message : public IRegisterMessage
         bool ParseRegistrationResponseMessage(std::string message, IRegistrationSuccessful& sucessful, IRegistrationUnsuccessful& unsuccesful);
         // ==============================================================================================================
 
-    private:
+        // ==============================================================================================================
+        // Start
+        // ==============================================================================================================
+        std::string BuildStartGameRequestMessage(IMessageBase& base);
+
+        bool ParseStartGameRequestMessage(std::string message);
+        // ==============================================================================================================
+
+        // ==============================================================================================================
+        // Player Move
+        // ==============================================================================================================
+        std::string BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMoveRequestData& data);
+
+        bool ParsePlayerMoveRequestMessage(std::string message);
+        // ==============================================================================================================
         
+
+    private:
+        blokus::Piece ConvertPieceEnum(PieceType type);
+
 };

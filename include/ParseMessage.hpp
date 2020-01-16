@@ -27,6 +27,16 @@ class ParseMessage
                             mt = MessageType::REGISTRATION_REQUEST;
                             break;
                         }
+                        case blokus::START_GAME:
+                        {
+                            mt = MessageType::STARTGAME_REQUEST;
+                            break;
+                        }
+                        case blokus::PLAYER_MOVE:
+                        {
+                            mt = MessageType::PLAYERMOVE_REQUEST;
+                            break;
+                        }
                         default:
                         {
                             break;
@@ -41,6 +51,16 @@ class ParseMessage
                         case blokus::REGISTER:
                         {
                             mt = MessageType::REGISTRATION_RESPONSE;
+                            break;
+                        }
+                        case blokus::START_GAME:
+                        {
+                            mt = MessageType::STARTGAME_RESPONSE;
+                            break;
+                        }
+                        case blokus::PLAYER_MOVE:
+                        {
+                            mt = MessageType::PLAYERMOVE_RESPONSE;
                             break;
                         }
                         default:

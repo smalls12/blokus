@@ -50,7 +50,7 @@ std::string Message::BuildRegistrationResponseMessage(IRegistrationSuccessful& r
 
     blokus::RegisterResp *_register = _response->mutable_register_resp();
 
-    blokus::PlayerColor pc;
+    blokus::PlayerColor pc = blokus::PlayerColor::BLOKUS_BLUE;
     switch (response.GetPlayerColor())
     {
         case PlayerColor::BLUE:
@@ -189,16 +189,71 @@ bool Message::ParseRegistrationResponseMessage(std::string message, IRegistratio
     return success;
 }
 
+std::string Message::BuildStartGameRequestMessage(IMessageBase& base)
+{
+    blokus::Message message;
+    message.set_uuid(base.GetUniqueIdentifier());
 
+    message.set_type(blokus::Message::REQUEST);
 
+    blokus::Request *blokus_request = message.mutable_request();
+    blokus_request->set_type(blokus::START_GAME);
 
-// static blokus::Message BuildBaseMessage(std::string uuid)
-// {
-//     blokus::Message message;
-//     message.set_uuid(uuid);
+    size_t size = message.ByteSizeLong(); 
+    void *buffer = malloc(size);
+    message.SerializeToArray(buffer, size);
 
-//     return message;
-// }
+    return std::string( (char *)buffer );
+}
+
+bool Message::ParseStartGameRequestMessage(std::string message)
+{
+    blokus::Message in;
+    in.ParseFromString(message);
+    
+    spdlog::get("console")->debug("Message::ParseStartGameRequestMessage() - {}", in.DebugString());
+
+    return true;
+}
+
+std::string Message::BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMoveRequestData& data)
+{
+    blokus::Message message;
+    message.set_uuid(base.GetUniqueIdentifier());
+
+    message.set_type(blokus::Message::REQUEST);
+
+    blokus::Request *_request = message.mutable_request();
+    _request->set_type(blokus::PLAYER_MOVE);
+
+    blokus::PlayerMoveReq *_player_move = _request->mutable_player_move_req();
+
+    _player_move->set_id(data.GetPlayerId());
+
+    blokus::Piece piece = ConvertPieceEnum(data.GetPieceType());
+    _player_move->set_piece(piece);
+
+    // initialize Location messages
+    blokus::Location *location = _player_move->mutable_location();
+    location->set_x_position(data.GetLocation().GetX());
+    location->set_y_position(data.GetLocation().GetY());
+
+    size_t size = message.ByteSizeLong(); 
+    void *buffer = malloc(size);
+    message.SerializeToArray(buffer, size);
+
+    return std::string( (char *)buffer );
+}
+
+bool Message::ParsePlayerMoveRequestMessage(std::string message)
+{
+    blokus::Message in;
+    in.ParseFromString(message);
+    
+    spdlog::get("console")->debug("Message::ParseStartGameRequestMessage() - {}", in.DebugString());
+
+    return true;
+}
 
 // static blokus::PlayerColor ConvertPlayerColorEnum(PlayerColor color)
 // {
@@ -219,183 +274,54 @@ bool Message::ParseRegistrationResponseMessage(std::string message, IRegistratio
 //     return blokus::PlayerColor::BLOKUS_BLUE;
 // }
 
-// void Message::BuildRegisterReq(blokus::Message& message, std::string username)
-// {
-//     message.set_type(blokus::Message::REQUEST);
+blokus::Piece Message::ConvertPieceEnum(PieceType type)
+{
+    switch ( type )
+    {
+        case PieceType::I5:
+            return blokus::Piece::I5;
+        case PieceType::N:
+            return blokus::Piece::N;
+        case PieceType::V5:
+            return blokus::Piece::V5;
+        case PieceType::T5:
+            return blokus::Piece::T5;
+        case PieceType::U:
+            return blokus::Piece::U;
+        case PieceType::L5:
+            return blokus::Piece::L5;
+        case PieceType::Y:
+            return blokus::Piece::Y;
+        case PieceType::Z5:
+            return blokus::Piece::Z5;
+        case PieceType::W:
+            return blokus::Piece::W;
+        case PieceType::P:
+            return blokus::Piece::P;
+        case PieceType::X:
+            return blokus::Piece::X;
+        case PieceType::Z4:
+            return blokus::Piece::Z4;
+        case PieceType::I4:
+            return blokus::Piece::I4;
+        case PieceType::L4:
+            return blokus::Piece::L4;
+        case PieceType::O:
+            return blokus::Piece::O;
+        case PieceType::T4:
+            return blokus::Piece::T4;
+        case PieceType::I3:
+            return blokus::Piece::I3;
+        case PieceType::V3:
+            return blokus::Piece::V3;
+        case PieceType::I2:
+            return blokus::Piece::I2;
+        case PieceType::I1:
+            return blokus::Piece::I1;
+    }
 
-//     // initialize PlayerMove message
-//     blokus::Request *blokus_request = message.mutable_request();
-//     blokus_request->set_type(blokus::REGISTER);
-
-//     // initialize PlayerMove message
-//     blokus::RegisterReq *register_req = blokus_request->mutable_register_req();
-
-//     // assign pice that was moved
-//     register_req->set_username(username);
-// }
-
-// blokus::Message Message::BuildRegisterReq(std::string username, std::string uuid)
-// {
-//     blokus::Message message;
-//     message.set_type(blokus::Message::REQUEST);
-//     message.set_uuid(uuid);
-
-//     // initialize PlayerMove message
-//     blokus::Request *blokus_request = message.mutable_request();
-//     blokus_request->set_type(blokus::REGISTER);
-
-//     // initialize PlayerMove message
-//     blokus::RegisterReq *register_req = blokus_request->mutable_register_req();
-
-//     // assign pice that was moved
-//     register_req->set_username(username);
-
-//     return message;
-// }
-
-// void Message::BuildRegisterResp(blokus::Message& message, PlayerColor color, uint32_t id, std::string username, std::string uuid)
-// {
-//     message.set_type(blokus::Message::RESPONSE);
-
-//     // initialize PlayerMove message
-//     blokus::Response *blokus_response = message.mutable_response();
-//     blokus_response->set_type(blokus::REGISTER);
-
-//     blokus::RegisterResp *register_resp = blokus_response->mutable_register_resp();
-//     register_resp->set_color(ConvertPlayerColorEnum(color));
-//     register_resp->set_id(id);
-//     register_resp->set_username(username);
-//     register_resp->set_uuid(uuid);
-// }
-
-// blokus::Message Message::BuildRegisterResp(PlayerColor color, uint32_t id, std::string username)
-// {
-//     blokus::Message message;
-//     message.set_type(blokus::Message::RESPONSE);
-
-//     // initialize PlayerMove message
-//     blokus::Response *blokus_response = message.mutable_response();
-//     blokus_response->set_type(blokus::REGISTER);
-
-//     blokus::RegisterResp *register_resp = blokus_response->mutable_register_resp();
-//     register_resp->set_color(ConvertPlayerColorEnum(color));
-//     register_resp->set_id(id);
-//     register_resp->set_username(username);
-//     // register_resp->set_uuid(uuid);
-
-//     return message;
-// }
-
-// blokus::Message Message::BuildStartGameReq(const std::vector<Player *> players)
-// {
-//     blokus::Message message;
-//     message.set_type(blokus::Message::REQUEST);
-
-//     // initialize PlayerMove message
-//     blokus::Request *blokus_request = message.mutable_request();
-//     blokus_request->set_type(blokus::START_GAME);
-
-//     blokus::StartGameReq *start_game_req = blokus_request->mutable_start_game_req();
-
-//     return message;
-// }
-
-// blokus::Message Message::BuildStartGameResp()
-// {
-//     blokus::Message message;
-//     message.set_type(blokus::Message::RESPONSE);
-
-//     // initialize PlayerMove message
-//     blokus::Response *blokus_response = message.mutable_response();
-//     blokus_response->set_type(blokus::START_GAME);
-
-//     return message;
-// }
-
-// blokus::Message Message::BuildPlayerMoveReq()
-// {
-//     blokus::Message message;
-//     message.set_type(blokus::Message::REQUEST);
-
-//     // initialize PlayerMove message
-//     blokus::Request *blokus_request = message.mutable_request();
-//     blokus_request->set_type(blokus::PLAYER_MOVE);
-
-//     return message;
-// }
-
-// static blokus::Piece ConvertPieceEnum(int piece)
-// {
-//     switch (piece)
-//     {
-//         case 0:
-//             return blokus::Piece::I5;
-//         case 1:
-//             return blokus::Piece::N;
-//         case 2:
-//             return blokus::Piece::V5;
-//         case 3:
-//             return blokus::Piece::T5;
-//         case 4:
-//             return blokus::Piece::U;
-//         case 5:
-//             return blokus::Piece::L5;
-//         case 6:
-//             return blokus::Piece::Y;
-//         case 7:
-//             return blokus::Piece::Z5;
-//         case 8:
-//             return blokus::Piece::W;
-//         case 9:
-//             return blokus::Piece::P;
-//         case 10:
-//             return blokus::Piece::X;
-//         case 11:
-//             return blokus::Piece::Z4;
-//         case 12:
-//             return blokus::Piece::I4;
-//         case 13:
-//             return blokus::Piece::L4;
-//         case 14:
-//             return blokus::Piece::O;
-//         case 15:
-//             return blokus::Piece::T4;
-//         case 16:
-//             return blokus::Piece::I3;
-//         case 17:
-//             return blokus::Piece::V3;
-//         case 18:
-//             return blokus::Piece::I2;
-//         case 19:
-//             return blokus::Piece::I1;
-//     }
-
-//     return blokus::Piece::I5;
-// }
-
-// // eventualy change this to an enumerated piece
-// blokus::Message Message::BuildPlayerMoveResp(const PieceMove *move)
-// {
-//     blokus::Message message;
-//     message.set_type(blokus::Message::RESPONSE);
-
-//     // initialize PlayerMove message
-//     blokus::Response *blokus_response = message.mutable_response();
-//     blokus_response->set_type(blokus::PLAYER_MOVE);
-
-//     // // initialize PlayerMove message
-//     blokus::PlayerMoveResp *player_move_resp = blokus_response->mutable_player_move_resp();
-
-//     // assign pice that was moved
-//     player_move_resp->set_piece(ConvertPieceEnum(move->getPiece()));
-
-//     // initialize Location messages
-//     blokus::Location *location = player_move_resp->mutable_location();
-//     location->set_x_position(move->getXPos());
-//     location->set_y_position(move->getYPos());
-
-//     return message;
-// }
+    return blokus::Piece::I5;
+}
 
 // blokus::Message Message::BuildEndGameReq()
 // {
