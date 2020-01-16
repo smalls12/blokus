@@ -1,0 +1,27 @@
+language: cpp
+compiler: gcc
+
+os: linux
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
+
+
+# Rather then compile protobuf 3 from source, use the binaries now available
+# to speed up build time and reduce surprises until Ubuntu adds protobuf3
+# packages to the repository.
+install:
+    - mkdir -p $HOME/protobuf && pushd $HOME/protobuf
+      && curl -LO 'https://github.com/protocolbuffers/protobuf/releases/download/v3.11.2/protoc-3.11.2-linux-x86_64.zip'
+      && unzip protoc-3.11.2-linux-x86_64.zip
+      && popd
+
+script:
+  - export CC=gcc-7
+  - export CXX=g++-7
+  - cmake --version
+  - cmake -DProtobuf_USE_STATIC_LIBS=ON -DProtobuf_LIBRARY=/usr/lib/libprotobuf.so -DProtobuf_INCLUDE_DIR=/usr/include -DProtobuf_PROTOC_EXECUTABLE=/usr/bin/protoc -DProtobuf_PROTOC_LIBRARY=/usr/lib/libprotoc.a CMakeLists.txt
+  - cmake  --build .
