@@ -6,6 +6,12 @@
 #include "PlayerManager.hpp"
 #include "ProcessPlayerMove.hpp"
 
+#include "IPlayerMoveRequestData.hpp"
+
+#include "GamePieceBank.hpp"
+#include "PieceSelector.hpp"
+#include "MoveablePiece.hpp"
+
 class GameScreen
 {
     public:
@@ -16,7 +22,7 @@ class GameScreen
                     ProcessPlayerMove& processPlayerMove   );
         ~GameScreen();
 
-        bool ProcessRemotePlayerMove();
+        bool ProcessRemotePlayerMove(IPlayerMoveRequestData& data);
         bool Show();
     
     protected:
@@ -27,6 +33,7 @@ class GameScreen
         ProcessPlayerMove&          mProcessPlayerMove;
 
     private:
+        // private methods
         void InitializeGamePieces();
         void InitGame();
         bool ProcessPlayerMoveInternal();
@@ -39,4 +46,10 @@ class GameScreen
         void CheckForNotification();
         void UpdateDrawFrame();
         void UnloadGame();
+
+        // private variables
+        GamePieceBank       mGamePieceBank;
+        PieceSelector       mPieceSelector;
+        PieceType           mSelectedPieceType;
+        MoveablePiece       mSelectedPiece;
 };

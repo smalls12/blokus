@@ -1,6 +1,8 @@
 #include "Message.hpp"
 #include "Register.hpp"
 
+#include "PlayerMoveRequestData.hpp"
+
 #include "spdlog/spdlog.h"
 
 Message::Message()
@@ -230,7 +232,7 @@ std::string Message::BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMo
 
     _player_move->set_id(data.GetPlayerId());
 
-    blokus::Piece piece = ConvertPieceEnum(data.GetPieceType());
+    blokus::Piece piece = ConvertPieceToMessageEnum(data.GetPieceType());
     _player_move->set_piece(piece);
 
     // initialize Location messages
@@ -245,12 +247,19 @@ std::string Message::BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMo
     return std::string( (char *)buffer );
 }
 
-bool Message::ParsePlayerMoveRequestMessage(std::string message)
+bool Message::ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequestData& data)
 {
     blokus::Message in;
     in.ParseFromString(message);
     
     spdlog::get("console")->debug("Message::ParseStartGameRequestMessage() - {}", in.DebugString());
+
+    data.SetPlayerId(in.request().player_move_req().id());
+
+    PieceType type = ParseMessageEnumToPiece(in.request().player_move_req().piece());
+    data.SetPieceType(type);
+
+    data.SetLocation(Point(in.request().player_move_req().location().x_position(), in.request().player_move_req().location().y_position()));
 
     return true;
 }
@@ -274,7 +283,7 @@ bool Message::ParsePlayerMoveRequestMessage(std::string message)
 //     return blokus::PlayerColor::BLOKUS_BLUE;
 // }
 
-blokus::Piece Message::ConvertPieceEnum(PieceType type)
+blokus::Piece Message::ConvertPieceToMessageEnum(PieceType type)
 {
     switch ( type )
     {
@@ -321,6 +330,55 @@ blokus::Piece Message::ConvertPieceEnum(PieceType type)
     }
 
     return blokus::Piece::I5;
+}
+
+PieceType Message::ParseMessageEnumToPiece(blokus::Piece type)
+{
+    switch ( type )
+    {
+        case blokus::Piece::I5:
+            return PieceType::I5;
+        case blokus::Piece::N:
+            return PieceType::N;
+        case blokus::Piece::V5:
+            return PieceType::V5;
+        case blokus::Piece::T5:
+            return PieceType::T5;
+        case blokus::Piece::U:
+            return PieceType::U;
+        case blokus::Piece::L5:
+            return PieceType::L5;
+        case blokus::Piece::Y:
+            return PieceType::Y;
+        case blokus::Piece::Z5:
+            return PieceType::Z5;
+        case blokus::Piece::W:
+            return PieceType::W;
+        case blokus::Piece::P:
+            return PieceType::P;
+        case blokus::Piece::X:
+            return PieceType::X;
+        case blokus::Piece::Z4:
+            return PieceType::Z4;
+        case blokus::Piece::I4:
+            return PieceType::I4;
+        case blokus::Piece::L4:
+            return PieceType::L4;
+        case blokus::Piece::O:
+            return PieceType::O;
+        case blokus::Piece::T4:
+            return PieceType::T4;
+        case blokus::Piece::I3:
+            return PieceType::I3;
+        case blokus::Piece::V3:
+            return PieceType::V3;
+        case blokus::Piece::I2:
+            return PieceType::I2;
+        case blokus::Piece::I1:
+            return PieceType::I1;
+    }
+
+    return PieceType::I5;
 }
 
 // blokus::Message Message::BuildEndGameReq()

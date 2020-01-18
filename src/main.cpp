@@ -120,7 +120,7 @@ void ShowGameLobby_StartGame(Game gm)
     // create the game screen
     GameScreen gameScreen(gm, mp, rgn, pm, processPlayerMove);
     
-    mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen));
+    mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 
     // display the game screen on the gui
     gameScreen.Show();
@@ -193,7 +193,7 @@ void ShowGameLobby_JoinGame(Game gm)
     // create the game screen
     GameScreen gameScreen(gm, mp, rgn, pm, processPlayerMove);
 
-    mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen));
+    mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 
     // display the game screen on the gui
     gameScreen.Show();

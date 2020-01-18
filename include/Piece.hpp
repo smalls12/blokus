@@ -1,34 +1,36 @@
 #pragma once
 
-#include "Point.hpp"
+/* =========================================================
+ *
+ * Piece.hpp
+ * 
+ * Base class, all pieces need this information
+ * 
+ * Used to draw a game piece
+ * 
+ * The layout of the piece is provided externally and tracked
+ * The padding is calculated based on the layout and grid size
+ * 
+ * ========================================================= */
+
 #include "Padding.hpp"
 #include "Layout.hpp"
-#include "PieceType.hpp"
 
 class Piece
 {
     public:
-        Piece();
         ~Piece();
-        Piece(Point offset, Padding padding, Layout layout, PieceType type);
-
-        void SetOffset(Point offset) { mOffset = offset; }
-        Point GetOffset() { return mOffset; }
+        Piece(Layout layout);
+        Piece(Layout layout, Padding padding);
     
-        void SetPadding(Padding padding) { mPadding = padding; }
-        Padding GetPadding() { return mPadding; }
-
         void SetLayout(Layout layout) { mLayout = layout ;}
         Layout GetLayout() { return mLayout; }
 
-        void SetType(PieceType type) { mType = type; }
-        PieceType GetType() {return mType; }
+        void SetPadding(Padding padding) { mPadding = padding; }
+        Padding GetPadding() { return mPadding; }
 
     private:
-        // represent the offset from (0, 0) to draw on the screen
-        Point       mOffset;
         // represents the available space inside the layout
-        Padding     mPadding;
         Layout      mLayout;
-        PieceType   mType;
+        Padding     mPadding;
 };

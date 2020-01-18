@@ -8,8 +8,8 @@ class Point
         Point();
         Point(int x, int y);
 
-        int GetX();
-        int GetY();
+        int GetX() const;
+        int GetY() const;
 
         friend std::ostream& operator <<(std::ostream& outputStream, const Point& p);
 

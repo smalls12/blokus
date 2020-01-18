@@ -14,12 +14,12 @@ Point::Point(int x, int y)
 
 }
 
-int Point::GetX()
+int Point::GetX() const
 {
     return mX;
 }
 
-int Point::GetY()
+int Point::GetY() const
 {
     return mY;
 }

@@ -19,6 +19,6 @@ class IPlayerMoveMessage
     public:
         virtual std::string BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMoveRequestData& request) = 0;
 
-        virtual bool ParsePlayerMoveRequestMessage(std::string message) = 0;
+        virtual bool ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequestData& data) = 0;
 
 };

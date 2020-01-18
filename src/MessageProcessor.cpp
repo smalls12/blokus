@@ -3,8 +3,12 @@
 #include "Message.hpp"
 
 #include "MessageType.hpp"
+
 #include "ParseMessage.hpp"
+
 #include "Register.hpp"
+
+#include "PlayerMoveRequestData.hpp"
 
 MessageProcessor::MessageProcessor()
 :   mRegistrationRequestEndpoint(),
@@ -69,9 +73,11 @@ bool MessageProcessor::ProcessMessage(std::string data)
         case MessageType::PLAYERMOVE_REQUEST:
         case MessageType::PLAYERMOVE_RESPONSE:
         {
+            PlayerMoveRequestData playerMoveRequestData;
+
             Message m;
-            m.ParsePlayerMoveRequestMessage(data);
-            mPlayerMoveEndpoint();
+            m.ParsePlayerMoveRequestMessage(data, playerMoveRequestData);
+            mPlayerMoveEndpoint(playerMoveRequestData);
             break;
         }
         default:

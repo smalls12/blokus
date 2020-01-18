@@ -42,11 +42,16 @@ set ( src_blokus
       src/PlayerManager.cpp
       src/Player.cpp
       src/PieceMove.cpp
+      src/BuildGamePieces.cpp
+      src/PiecesAvailableForPlayLocations.cpp
+      src/PieceSelector.cpp
       src/Board.cpp
       src/GameBoard.cpp
+      src/GamePieceBank.cpp
       src/OverlayBoard.cpp
       src/Layout.cpp
       src/Piece.cpp
+      src/MoveablePiece.cpp
       src/Padding.cpp
       src/Point.cpp
       src/MessageProcessor.cpp
@@ -97,15 +102,22 @@ set ( src_blokus_test
       src/OverlayBoard.cpp
       src/Layout.cpp
       src/Piece.cpp
+      src/MoveablePiece.cpp
       src/Padding.cpp
       src/Point.cpp
       src/Task.cpp
       src/GameNotification.cpp
       src/ReadGameNotification.cpp
+      src/PieceSelector.cpp
       test/TestSuiteSetup.cpp
       test/TestSuiteCalculatePadding.cpp
+      test/TestSuitePieceSelector.cpp
       test/TestSuiteTask.cpp
       test/TestSuiteReadGameNotification.cpp
+      test/TestSuitePiece.cpp
+      test/TestSuiteMoveablePiece.cpp
+      test/TestSuiteLayout.cpp
+      test/TestSuitePadding.cpp
 )
 
 add_executable( test_blokus ${src_blokus_test} )

@@ -50,11 +50,12 @@ class Message : public IRegisterMessage, public IStartGameMessage, public IPlaye
         // ==============================================================================================================
         std::string BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMoveRequestData& data);
 
-        bool ParsePlayerMoveRequestMessage(std::string message);
+        bool ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequestData& data);
         // ==============================================================================================================
         
 
     private:
-        blokus::Piece ConvertPieceEnum(PieceType type);
+        blokus::Piece ConvertPieceToMessageEnum(PieceType type);
+        PieceType ParseMessageEnumToPiece(blokus::Piece type);
 
 };
