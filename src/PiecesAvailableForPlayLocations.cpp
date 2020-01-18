@@ -30,3 +30,8 @@ PiecesAvailableForPlayLocations::~PiecesAvailableForPlayLocations()
 {
 
 }
+
+Point PiecesAvailableForPlayLocations::GetPieceLocation(PieceType type)
+{
+    return mLocations.at(type);
+}

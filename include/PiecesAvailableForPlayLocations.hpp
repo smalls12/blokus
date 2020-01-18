@@ -27,7 +27,7 @@ class PiecesAvailableForPlayLocations
         PiecesAvailableForPlayLocations();
         ~PiecesAvailableForPlayLocations();
 
-        Point GetPieceLocation();
+        Point GetPieceLocation(PieceType type);
 
         std::map<PieceType, const Point>::const_iterator cbegin() { return mLocations.cbegin(); }
         std::map<PieceType, const Point>::const_iterator cend() { return mLocations.cend(); }

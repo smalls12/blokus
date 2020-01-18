@@ -1,7 +1,6 @@
 #include "ValidateMove.hpp"
 
 #include "GridSquare.hpp"
-#include "CalculatePadding.hpp"
 #include "Point.hpp"
 #include "Layout.hpp"
 
@@ -27,11 +26,6 @@ extern "C" {
 #include "raylib.h"
 }
 
-#include <vector>
-#include <iostream>
-
-#define MAX_INPUT_CHARS     9
-
 #define BOARD_SQUARE_SIZE       20
 #define PIECE_SQUARE_SIZE       10
 
@@ -43,14 +37,11 @@ namespace
     static const int screenWidth = 600;
     static const int screenHeight = 600;
 
-    static bool started = false;
     static bool gameOver = false;
     static bool pause = false;
 
     GameBoard gb;
     OverlayBoard ob;
-
-    std::vector<Piece> GamePieces;
 
     static bool selected = false;
 
@@ -60,8 +51,6 @@ namespace
     static Color playerColor;
 
     static bool beginPlay = true;
-
-    static int lines = 0;
 }
 
 GameScreen::GameScreen(IGameSettings& settings,
@@ -90,9 +79,6 @@ GameScreen::~GameScreen()
 // Initialize game variables
 void GameScreen::InitGame(void)
 {
-    // Initialize game statistics
-    lines = 0;
-
     playerColor = RED;
 
     PiecePositionX = 0;
@@ -261,10 +247,6 @@ void GameScreen::UpdateGame(void)
                     mSelectedPiece = MoveablePiece(mGamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, mSelectedPieceType));
                     mSelectedPiece.SetLocation(Point( screenWidth / 2 - BOARD_SQUARE_SIZE * 2, screenHeight / 2 - BOARD_SQUARE_SIZE * 2 ));
 
-                    // selectedPiece.SetOffset( Point( screenWidth / 2 - BOARD_SQUARE_SIZE * 2, screenHeight / 2 - BOARD_SQUARE_SIZE * 2 ) );
-                    // selectedPiece.SetPadding(GamePieces.at(PieceSelector).GetPadding());
-                    // selectedPiece.SetLayout(GamePieces.at(PieceSelector).GetLayout());
-
                     AddPiece::AddPieceToBoard( ob, mSelectedPiece, Point( PiecePositionX, PiecePositionY ) );
 
                     selected = true;
@@ -327,8 +309,6 @@ void GameScreen::DrawGamePieces()
     PiecesAvailableForPlayLocations locations;
     for (std::map<PieceType, const Point>::const_iterator it = locations.cbegin(); it != locations.cend(); ++it)
     {
-        spdlog::get("console")->info("GameScreen::DrawGamePieces() - Piece");
-
         Vector2 pieceOffset;
 
         pieceOffset.x = it->second.GetX();
@@ -365,45 +345,6 @@ void GameScreen::DrawGamePieces()
             pieceOffset.y += PIECE_SQUARE_SIZE;
         }
     }
-
-    // Draw incoming piece (hardcoded)
-    // for (auto po : GamePieces)
-    // {
-    //     Vector2 pieceOffset;
-
-    //     pieceOffset.x = po.GetOffset().GetX();
-    //     pieceOffset.y = po.GetOffset().GetY();
-
-    //     int controller = pieceOffset.x;
-
-    //     for (int i = 0; i < 5; i++)
-    //     {
-    //         for (int j = 0; j < 5; j++)
-    //         {
-    //             if (po.GetLayout().Get(i, j) == GridSquare::EMPTY)
-    //             {
-    //                 DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, LIGHTGRAY );
-    //                 DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
-    //                 DrawLine(pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
-    //                 DrawLine(pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
-    //                 pieceOffset.x += PIECE_SQUARE_SIZE;
-    //             }
-    //             else if (po.GetLayout().Get(i, j) == GridSquare::BLOCK)
-    //             {
-    //                 // won't happen
-    //                 pieceOffset.x += BOARD_SQUARE_SIZE;
-    //             }
-    //             else
-    //             {
-    //                 DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, playerColor);
-    //                 pieceOffset.x += PIECE_SQUARE_SIZE;
-    //             }
-    //         }
-
-    //         pieceOffset.x = controller;
-    //         pieceOffset.y += PIECE_SQUARE_SIZE;
-    //     }
-    // }
 }
 
 void GameScreen::DrawOverlayBoard()
@@ -448,10 +389,12 @@ void GameScreen::DrawOverlayBoard()
 
 void GameScreen::DrawSelector()
 {
+    PiecesAvailableForPlayLocations locations;
+
     Vector2 selectorOffset;
 
-    // selectorOffset.x = GamePieces.at(PieceSelector).GetOffset().GetX();
-    // selectorOffset.y = GamePieces.at(PieceSelector).GetOffset().GetY();
+    selectorOffset.x = locations.GetPieceLocation(mSelectedPieceType).GetX();
+    selectorOffset.y = locations.GetPieceLocation(mSelectedPieceType).GetY();
 
     // draw the piece selector
     DrawLine(selectorOffset.x, selectorOffset.y, selectorOffset.x + ( PIECE_SQUARE_SIZE * 5 ), selectorOffset.y + 1, DARKGRAY );
@@ -505,18 +448,23 @@ void GameScreen::CheckForNotification()
             {
                 case NotificationType::JOIN:
                 {
-                    auto newPlayer = std::make_shared<Player>( gn.getName(), gn.getUuid(), 2 );
-                    mPlayerManager.AddPlayerToGame(gn.getUuid(), newPlayer);
+                    // nothing prevents someone from joining the network built with zyre
+                    //
+                    // that is why the game requires a user register to enforce players actually
+                    // participating in the game
+                    break;
+                }
+                
+                case NotificationType::MESSAGE:
+                {
+                    mMessageProcessor.ProcessMessage(gn.getData());
                     break;
                 }
                 case NotificationType::LEAVE:
                 {
+                    // if a remote player closes the app
+                    // the other players on the network might only get the EXIT message
                     mPlayerManager.RemovePlayerFromGame(gn.getUuid());
-                    break;
-                }
-                case NotificationType::MESSAGE:
-                {
-                    mMessageProcessor.ProcessMessage(gn.getData());
                     break;
                 }
                 default:
@@ -550,6 +498,8 @@ void GameScreen::UnloadGame(void)
 bool GameScreen::Show()
 {
     InitGame();
+
+    InitWindow(screenWidth, screenHeight, "Blokus");
 
     SetTargetFPS(30);
 

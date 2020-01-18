@@ -213,6 +213,8 @@ void GameLobbyScreen::Show()
 
     UpdateGameLobbyDrawFrame();
 
+    CloseWindow();
+
     return;
 }
 
