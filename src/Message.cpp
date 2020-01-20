@@ -52,68 +52,8 @@ std::string Message::BuildRegistrationResponseMessage(IRegistrationSuccessful& r
 
     blokus::RegisterResp *_register = _response->mutable_register_resp();
 
-    blokus::PlayerColor pc = blokus::PlayerColor::BLOKUS_BLUE;
-    switch (response.GetPlayerColor())
-    {
-        case PlayerColor::BLUE:
-        {
-            pc = blokus::PlayerColor::BLOKUS_BLUE;
-            break;
-        }
-        case PlayerColor::RED:
-        {
-            pc = blokus::PlayerColor::BLOKUS_RED;
-            break;
-        }
-        case PlayerColor::GREEN:
-        {
-            pc = blokus::PlayerColor::BLOKUS_GREEN;
-            break;
-        }
-        case PlayerColor::YELLOW:
-        {
-            pc = blokus::PlayerColor::BLOKUS_YELLOW;
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-
     _register->set_status(blokus::RegisterResp::SUCCESSFUL);
-    _register->set_color(pc);
 
-    blokus::PlayerID id = blokus::PlayerID::BLOKUS_PLAYER_ONE;
-    switch (response.GetPlayerId())
-    {
-        case PlayerId::PLAYER_ONE:
-        {
-            id = blokus::PlayerID::BLOKUS_PLAYER_ONE;
-            break;
-        }
-        case PlayerId::PLAYER_TWO:
-        {
-            id = blokus::PlayerID::BLOKUS_PLAYER_TWO;
-            break;
-        }
-        case PlayerId::PLAYER_THREE:
-        {
-            id = blokus::PlayerID::BLOKUS_PLAYER_THREE;
-            break;
-        }
-        case PlayerId::PLAYER_FOUR:
-        {
-            id = blokus::PlayerID::BLOKUS_PLAYER_FOUR;
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-
-    _register->set_id(id);
     _register->set_username(response.GetUsername());
     _register->set_uuid(response.GetUuid());
 
@@ -174,68 +114,6 @@ bool Message::ParseRegistrationResponseMessage(std::string message, IRegistratio
     Register r;
     if( success )
     {
-        PlayerColor pc;
-        switch( in.response().register_resp().color() )
-        {
-            case blokus::PlayerColor::BLOKUS_BLUE:
-            {
-                pc = PlayerColor::BLUE;
-                break;
-            }
-            case blokus::PlayerColor::BLOKUS_RED:
-            {
-                pc = PlayerColor::BLUE;
-                break;
-            }
-            case blokus::PlayerColor::BLOKUS_GREEN:
-            {
-                pc = PlayerColor::BLUE;
-                break;
-            }
-            case blokus::PlayerColor::BLOKUS_YELLOW:
-            {
-                pc = PlayerColor::BLUE;
-                break;
-            }
-            default:
-            {
-                // error
-                break;
-            }
-        }
-
-        r.SetPlayerColor(pc);
-
-        PlayerId id = PlayerId::PLAYER_ONE;
-        switch( in.response().register_resp().id() )
-        {
-            case blokus::PlayerID::BLOKUS_PLAYER_ONE:
-            {
-                id = PlayerId::PLAYER_ONE;
-                break;
-            }
-            case blokus::PlayerID::BLOKUS_PLAYER_TWO:
-            {
-                id = PlayerId::PLAYER_TWO;
-                break;
-            }
-            case blokus::PlayerID::BLOKUS_PLAYER_THREE:
-            {
-                id = PlayerId::PLAYER_THREE;
-                break;
-            }
-            case blokus::PlayerID::BLOKUS_PLAYER_FOUR:
-            {
-                id = PlayerId::PLAYER_FOUR;
-                break;
-            }
-            default:
-            {
-                // error
-                break;
-            }
-        }
-        r.SetPlayerId(id);
         r.SetUsername(in.response().register_resp().username());
         r.SetUuid(in.response().register_resp().uuid());
 
@@ -437,25 +315,6 @@ bool Message::ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequ
 
     return true;
 }
-
-// static blokus::PlayerColor ConvertPlayerColorEnum(PlayerColor color)
-// {
-//     switch (color)
-//     {
-//         case PlayerColor::BLUE:
-//             return blokus::PlayerColor::BLOKUS_BLUE;
-//         case PlayerColor::RED:
-//             return blokus::PlayerColor::BLOKUS_RED;
-//         case PlayerColor::GREEN:
-//             return blokus::PlayerColor::BLOKUS_GREEN;
-//         case PlayerColor::YELLOW:
-//             return blokus::PlayerColor::BLOKUS_YELLOW;
-//     }
-
-//     // this can't happen
-//     // it's an enum
-//     return blokus::PlayerColor::BLOKUS_BLUE;
-// }
 
 blokus::Piece Message::ConvertPieceToMessageEnum(PieceType type)
 {

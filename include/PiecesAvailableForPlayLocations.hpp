@@ -16,8 +16,7 @@
  * ========================================================= */
 
 #include "PieceType.hpp"
-#include "Piece.hpp"
-#include "PlayerColor.hpp"
+#include "Point.hpp"
 
 #include <map>
 

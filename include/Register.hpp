@@ -4,9 +4,6 @@
 #include "IRegistrationSuccessful.hpp"
 #include "IRegistrationUnsuccessful.hpp"
 
-#include "PlayerColor.hpp"
-#include "PlayerId.hpp"
-
 #include "spdlog/spdlog.h"
 
 class Register : public IRegisterRequest, public IRegistrationSuccessful, public IRegistrationUnsuccessful
@@ -14,12 +11,6 @@ class Register : public IRegisterRequest, public IRegistrationSuccessful, public
     public:
         Register();
         ~Register();
-
-        void SetPlayerColor(PlayerColor color) { mPlayerColor = color; }
-        PlayerColor GetPlayerColor() { return mPlayerColor; }
-
-        void SetPlayerId(PlayerId id) { mPlayerId = id; }
-        PlayerId GetPlayerId() { return mPlayerId; }
 
         void SetUsername(std::string username) { mUsername = username; }
         std::string GetUsername() { return mUsername; }
@@ -33,19 +24,13 @@ class Register : public IRegisterRequest, public IRegistrationSuccessful, public
         // Copy constructor 
         Register(const Register &r)
         {
-            mPlayerColor = r.mPlayerColor;
-            mPlayerId = r.mPlayerId;
             mUsername = r.mUsername;
             mUuid = r.mUuid;
             mError = r.mError;
         } 
 
     private:
-        PlayerColor     mPlayerColor;
-        PlayerId        mPlayerId;
         std::string     mUsername;
         std::string     mUuid;
-
         std::string     mError;
-        
 };

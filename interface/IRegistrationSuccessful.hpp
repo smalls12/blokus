@@ -8,23 +8,11 @@
  * 
  * ========================================================= */
 
-#include "PlayerColor.hpp"
-#include "PlayerId.hpp"
-
 #include <string>
 
 class IRegistrationSuccessful
 {
     public:
-        // virtual void SetPlayerColor(PlayerColor color) = 0;
-        virtual PlayerColor GetPlayerColor() = 0;
-
-        // virtual void SetPlayerId(int Id) = 0;
-        virtual PlayerId GetPlayerId() = 0;
-
-        // virtual void SetUsername(std::string name) = 0;
         virtual std::string GetUsername() = 0;
-
-        // virtual void SetUuid(std::string uuid) = 0;
         virtual std::string GetUuid() = 0;
 };

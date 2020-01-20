@@ -12,7 +12,6 @@
 
 #include "PieceType.hpp"
 #include "Piece.hpp"
-#include "PlayerColor.hpp"
 
 #include <map>
 
@@ -22,7 +21,7 @@ class BuildGamePieces
         // a map of pieces
         //  key is the type of piece
         //  value is piece itself
-        static std::map<PieceType, Piece> Build(PlayerColor color);
+        static std::map<PieceType, Piece> Build();
 
     private:
         BuildGamePieces();

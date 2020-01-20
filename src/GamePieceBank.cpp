@@ -5,10 +5,10 @@
 GamePieceBank::GamePieceBank()
 {
     mGamePieces = std::map<PlayerId, std::map<PieceType, Piece>> {
-        { PlayerId::PLAYER_ONE, BuildGamePieces::Build(PlayerColor::BLUE) },
-        { PlayerId::PLAYER_TWO, BuildGamePieces::Build(PlayerColor::BLUE) },
-        { PlayerId::PLAYER_THREE, BuildGamePieces::Build(PlayerColor::BLUE) },
-        { PlayerId::PLAYER_FOUR, BuildGamePieces::Build(PlayerColor::BLUE) },
+        { PlayerId::PLAYER_ONE, BuildGamePieces::Build() },
+        { PlayerId::PLAYER_TWO, BuildGamePieces::Build() },
+        { PlayerId::PLAYER_THREE, BuildGamePieces::Build() },
+        { PlayerId::PLAYER_FOUR, BuildGamePieces::Build() },
     };
 }
 

@@ -13,7 +13,6 @@
 class IRegistrationUnsuccessful
 {
     public:
-        
         virtual std::string GetUsername() = 0;
         virtual std::string GetUuid() = 0;
 };

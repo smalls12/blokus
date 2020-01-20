@@ -13,14 +13,6 @@ message RegisterReq {
     string uuid = 2;
 }
 
-// not needed
-enum PlayerColor {
-    BLOKUS_BLUE = 0;
-    BLOKUS_RED = 1;
-    BLOKUS_GREEN = 2;
-    BLOKUS_YELLOW = 3;
-}
-
 // possible player ids
 enum PlayerID {
     BLOKUS_PLAYER_ONE = 0;
@@ -40,8 +32,6 @@ message RegisterResp {
 
     RegistrationStatus status = 1;
 
-    PlayerColor color = 2;
-    PlayerID id = 3;
     string username = 4;
     string uuid = 5;
     string error = 6;

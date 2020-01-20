@@ -2,7 +2,7 @@
 
 #include "CalculatePadding.hpp"
 
-std::map<PieceType, Piece> BuildGamePieces::Build(PlayerColor color)
+std::map<PieceType, Piece> BuildGamePieces::Build()
 {
     Layout BlokusPiece1;
     BlokusPiece1.Set( Point(2, 2), GridSquare::P1 );

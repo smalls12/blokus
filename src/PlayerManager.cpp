@@ -124,8 +124,6 @@ bool PlayerManager::RegisterRemotePlayer(IRegisterRequest& request)
             // the player manager will assign colors and player ids based off of who came first
 
             Register r;
-            r.SetPlayerColor(PlayerColor::BLUE);
-            r.SetPlayerId(PlayerId::PLAYER_ONE);
             r.SetUsername(request.GetUsername());
             r.SetUuid(request.GetUuid());
             mRegisterResponse.SendRegistrationSuccessfulResponse(r);
