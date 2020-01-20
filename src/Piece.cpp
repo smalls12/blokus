@@ -24,3 +24,8 @@ Piece::~Piece()
     // spdlog::get("console")->info("Piece::Piece()");
 
 }
+
+std::ostream& operator <<(std::ostream& outputStream, const Piece& l)
+{
+    return outputStream;
+}

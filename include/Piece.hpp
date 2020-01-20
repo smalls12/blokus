@@ -29,6 +29,8 @@ class Piece
         void SetPadding(Padding padding) { mPadding = padding; }
         Padding GetPadding() { return mPadding; }
 
+        friend std::ostream& operator <<(std::ostream& outputStream, const Piece& p);
+
     private:
         // represents the available space inside the layout
         Layout      mLayout;

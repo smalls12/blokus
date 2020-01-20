@@ -125,7 +125,7 @@ bool PlayerManager::RegisterRemotePlayer(IRegisterRequest& request)
 
             Register r;
             r.SetPlayerColor(PlayerColor::BLUE);
-            r.SetPlayerId(1);
+            r.SetPlayerId(PlayerId::PLAYER_ONE);
             r.SetUsername(request.GetUsername());
             r.SetUuid(request.GetUuid());
             mRegisterResponse.SendRegistrationSuccessfulResponse(r);

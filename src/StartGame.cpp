@@ -1,6 +1,8 @@
 #include "StartGame.hpp"
 
-StartGame::StartGame(INetworkSend& send, IRequest& request)
+#include "StartGameRequestData.hpp"
+
+StartGame::StartGame(INetworkSend& send, IStartGameRequest& request)
 :   mSend(send),
     mRequest(request)
 {
@@ -12,12 +14,16 @@ StartGame::~StartGame()
     spdlog::get("console")->debug("StartGame::~StartGame()");
 }
 
-bool StartGame::Start(std::string gameName)
+bool StartGame::Start(IGameSettings& settings, IPlayerRegistry& registry)
 {
     spdlog::get("console")->debug("StartGame::Start() - Start");
 
-    std::string message = mRequest.Build();
-    mSend.Send( gameName, message );
+    StartGameRequestData startGameRequestData;
+    startGameRequestData.SetGameConfiguration(settings.GetGameConfiguration());
+    startGameRequestData.SetPlayers(registry.GetListOfPlayers());
+
+    std::string message = mRequest.Build(startGameRequestData);
+    mSend.Send( settings.GetGameName(), message );
 
     spdlog::get("console")->debug("StartGame::Start() - Done");
 

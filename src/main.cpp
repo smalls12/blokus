@@ -27,6 +27,8 @@ extern "C" {
 
 #include "MessageProcessor.hpp"
 
+#include "RandomizePlayerIds.hpp"
+
 #include "StartGame.hpp"
 #include "StartGameRequest.hpp"
 
@@ -82,20 +84,20 @@ void ShowGameLobby_StartGame(Game gm)
     RegisterResponse rr(network, network, gm.GetUsername(), gm.GetGameName(), m);
 
     // create player manager
-    PlayerManager pm(rr);
+    PlayerManager playerManager(rr);
 
     // create local user
-    auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier(), 1 );
+    auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier() );
 
     // add local user to player manager
-    pm.AddPlayerToGame(network.GetUniqueIdentifier(), myself);
+    playerManager.AddPlayerToGame(network.GetUniqueIdentifier(), myself);
 
     // create message processor
     MessageProcessor mp;
 
     // add an endpoint
     // in this case we are interested in responding to registration requests
-    mp.SetRegisterRequestEndpoint(std::bind(&PlayerManager::RegisterRemotePlayer, &pm, _1));
+    mp.SetRegisterRequestEndpoint(std::bind(&PlayerManager::RegisterRemotePlayer, &playerManager, _1));
     // mp.SetStartGameEndpoint();
 
     // build start game object
@@ -111,14 +113,17 @@ void ShowGameLobby_StartGame(Game gm)
     // create read game notification object
     ReadGameNotification rgn(network, gm.GetGameName());
 
+    // create randomize object
+    RandomizePlayerIds randomizePlayerIds(playerManager);
+
     // create game lobby
-    StartGameLobbyScreen startGameLobbyScreen(gm, mp, rgn, pm, sg);
+    StartGameLobbyScreen startGameLobbyScreen(gm, mp, rgn, playerManager, sg, randomizePlayerIds);
 
     // display the start screen on the gui
     startGameLobbyScreen.Show();
 
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, pm, processPlayerMove);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove);
     
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 
@@ -151,7 +156,7 @@ void ShowGameLobby_JoinGame(Game gm)
     PlayerManager pm(rr);
 
     // create local user
-    auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier(), 1 );
+    auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier() );
 
     // add local user to player manager
     pm.AddPlayerToGame(network.GetUniqueIdentifier(), myself);

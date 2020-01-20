@@ -5,6 +5,7 @@
 #include "ReadGameNotification.hpp"
 #include "PlayerManager.hpp"
 #include "StartGame.hpp"
+#include "IRandomizePlayerIds.hpp"
 
 #include "GameLobbyScreen.hpp"
 
@@ -15,7 +16,8 @@ class StartGameLobbyScreen : public GameLobbyScreen
                                 MessageProcessor& messageProcessor,
                                 ReadGameNotification& readGameNotification,
                                 PlayerManager& playerManager,
-                                StartGame& startGame    );
+                                StartGame& startGame,
+                                IRandomizePlayerIds& randomizePlayerIds);
         ~StartGameLobbyScreen();
 
         bool ServerReadyToStart() { mReadyToStart = true; }
@@ -28,5 +30,6 @@ class StartGameLobbyScreen : public GameLobbyScreen
         bool mFourPlayerMode;
         bool mStartGameButton;
 
-        StartGame&      mStartGame;
+        StartGame&              mStartGame;
+        IRandomizePlayerIds&    mRandomizePlayerIds;
 };

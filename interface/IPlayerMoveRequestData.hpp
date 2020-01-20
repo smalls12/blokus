@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PlayerId.hpp"
 #include "PieceType.hpp"
 #include "Point.hpp"
 
@@ -9,8 +10,8 @@ class IPlayerMoveRequestData
 {
     public:
 
-        virtual void SetPlayerId(int id) = 0;
-        virtual int GetPlayerId() = 0;
+        virtual void SetPlayerId(PlayerId id) = 0;
+        virtual PlayerId GetPlayerId() = 0;
 
         virtual void SetPieceType(PieceType type) = 0;
         virtual PieceType GetPieceType() = 0;

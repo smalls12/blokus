@@ -9,6 +9,7 @@
  * ========================================================= */
 
 #include "PlayerColor.hpp"
+#include "PlayerId.hpp"
 
 #include <string>
 
@@ -19,7 +20,7 @@ class IRegistrationSuccessful
         virtual PlayerColor GetPlayerColor() = 0;
 
         // virtual void SetPlayerId(int Id) = 0;
-        virtual int GetPlayerId() = 0;
+        virtual PlayerId GetPlayerId() = 0;
 
         // virtual void SetUsername(std::string name) = 0;
         virtual std::string GetUsername() = 0;

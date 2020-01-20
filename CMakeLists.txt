@@ -4,6 +4,7 @@ project( blokus )
 
 # -DSPDLOG_COMPILED_LIB needed for spdlog to use static lib instead of headers only
 set( CMAKE_CXX_FLAGS " -g -Wall -Wextra -O2 -Wl,--no-as-needed -fPIC -std=c++17 -DSPDLOG_COMPILED_LIB " )
+# set( CMAKE_CXX_FLAGS " -O2 -Wl,--no-as-needed -fPIC -std=c++17 -DSPDLOG_COMPILED_LIB " )
 
 include_directories( ${CMAKE_STAGING_PREFIX}/usr/include )
 link_directories( ${CMAKE_STAGING_PREFIX}/usr/lib )
@@ -34,6 +35,7 @@ set ( src_blokus
       src/RegisterForGame.cpp
       src/StartGame.cpp
       src/StartGameRequest.cpp
+      src/StartGameRequestData.cpp
       src/GameNotification.cpp
       src/ReadGameNotification.cpp
       src/Register.cpp
@@ -63,6 +65,7 @@ set ( src_blokus
       src/PlayerMoveRequest.cpp
       src/PlayerMoveRequestData.cpp
       src/ProcessPlayerMove.cpp
+      src/RandomizePlayerIds.cpp
       src/main.cpp
 )
 

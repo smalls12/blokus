@@ -12,7 +12,7 @@ StartGameRequest::~StartGameRequest()
     spdlog::get("console")->debug("StartGameRequest::~StartGameRequest()");
 }
 
-std::string StartGameRequest::Build()
+std::string StartGameRequest::Build(IStartGameRequestData& data)
 {
-    return mMessage.BuildStartGameRequestMessage(mBase);
+    return mMessage.BuildStartGameRequestMessage(mBase, data);
 }

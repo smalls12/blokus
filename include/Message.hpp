@@ -13,6 +13,7 @@
 #include "IRegisterRequest.hpp"
 
 #include "IStartGameMessage.hpp"
+#include "IStartGameRequestData.hpp"
 
 #include "IPlayerMoveMessage.hpp"
 #include "IPlayerMoveRequestData.hpp"
@@ -40,9 +41,9 @@ class Message : public IRegisterMessage, public IStartGameMessage, public IPlaye
         // ==============================================================================================================
         // Start
         // ==============================================================================================================
-        std::string BuildStartGameRequestMessage(IMessageBase& base);
+        std::string BuildStartGameRequestMessage(IMessageBase& base, IStartGameRequestData& data);
 
-        bool ParseStartGameRequestMessage(std::string message);
+        bool ParseStartGameRequestMessage(std::string message, IStartGameRequestData& data);
         // ==============================================================================================================
 
         // ==============================================================================================================

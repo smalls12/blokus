@@ -2,18 +2,17 @@
 
 #include <string>
 
-#include "PlayerColor.hpp"
+#include "PlayerId.hpp"
 
 class Player {
 
 public:
-    Player(std::string username, std::string uuid, uint32_t playerId);
+    Player(std::string username, std::string uuid);
     ~Player();
 
-    std::string getUsername();
-    std::string getUuid();
-    uint32_t getPlayerId();
-    PlayerColor getColor();
+    std::string getUsername() { return mUsername; }
+    std::string getUuid() { return mUuid; }
+    PlayerId getPlayerId() { return mPlayerId; }
 
     void Register()
     {
@@ -27,12 +26,45 @@ public:
         }
     }
     bool isRegistered() { return mRegistered; }
+    
+    void AssignPlayerID(unsigned int id)
+    {
+        switch(id)
+        {
+            case 1:
+            {
+                mPlayerId = PlayerId::PLAYER_ONE;
+                break;
+            }
+            case 2:
+            {
+                mPlayerId = PlayerId::PLAYER_TWO;
+                break;
+            }
+            case 3:
+            {
+                mPlayerId = PlayerId::PLAYER_THREE;
+                break;
+            }
+            case 4:
+            {
+                mPlayerId = PlayerId::PLAYER_FOUR;
+                break;
+            }
+            default:
+            {
+                mPlayerId = PlayerId::UNASSIGNED;
+                break;
+            }
+        }
+    }
+
+    void AssignPlayerID(PlayerId id) { mPlayerId = id; }
 
 private:
     std::string mUsername;
     std::string mUuid;
-    uint32_t mPlayerId;
-    PlayerColor mColor;
+    PlayerId mPlayerId;
 
     bool mRegistered;
 };

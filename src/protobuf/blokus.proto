@@ -7,6 +7,13 @@ package blokus;
 // setup
 // ================================================================================
 
+// the user will then attempt to join the game hosted at said server
+message RegisterReq {
+    string username = 1;
+    string uuid = 2;
+}
+
+// not needed
 enum PlayerColor {
     BLOKUS_BLUE = 0;
     BLOKUS_RED = 1;
@@ -14,10 +21,13 @@ enum PlayerColor {
     BLOKUS_YELLOW = 3;
 }
 
-// the user will then attempt to join the game hosted at said server
-message RegisterReq {
-    string username = 1;
-    string uuid = 2;
+// possible player ids
+enum PlayerID {
+    BLOKUS_PLAYER_ONE = 0;
+    BLOKUS_PLAYER_TWO = 1;
+    BLOKUS_PLAYER_THREE = 2;
+    BLOKUS_PLAYER_FOUR = 3;
+    BLOKUS_PLAYER_UNASSIGNED = 4;
 }
 
 // return information about this client
@@ -31,13 +41,28 @@ message RegisterResp {
     RegistrationStatus status = 1;
 
     PlayerColor color = 2;
-    uint32 id = 3;
+    PlayerID id = 3;
     string username = 4;
     string uuid = 5;
     string error = 6;
 }
 
+// possible game modes
+enum GameConfiguration {
+    BLOKUS_TWO_PLAYER = 0;
+    BLOKUS_FOUR_PLAYER = 1;
+}
+
+// players matched to their player ids
+message Player {
+    string uuid = 1;
+    PlayerID id = 2;
+}
+
+// upon starting the game, inform all players of the player ids
 message StartGameReq {
+    GameConfiguration configuration = 1;
+    repeated Player player = 2;
 }
 
 // ================================================================================
@@ -68,6 +93,7 @@ enum Piece {
     V3 = 17;
     I2 = 18;
     I1 = 19;
+    F = 20;
 }
 
 // the location on the board where the piece has moved
@@ -78,7 +104,7 @@ message Location {
 
 message PlayerMoveReq {
     // id representing the move by the current user
-    uint32 id = 1;
+    PlayerID id = 1;
 
     // this represents their move
     Piece piece = 2;
@@ -90,7 +116,7 @@ message PlayerMoveReq {
 // ================================================================================
 message EndGameReq {
     // id representing who won
-    uint32 id = 1;
+    PlayerID id = 1;
 }
 
 enum Type {

@@ -1,19 +1,22 @@
 #pragma once
 
 #include "INetworkSend.hpp"
-#include "IRequest.hpp"
+#include "IStartGameRequest.hpp"
+
+#include "IGameSettings.hpp"
+#include "IPlayerRegistry.hpp"
 
 #include "spdlog/spdlog.h"
 
 class StartGame
 {
     public:
-        StartGame(INetworkSend& send, IRequest& request);
+        StartGame(INetworkSend& send, IStartGameRequest& request);
         ~StartGame();
 
-        bool Start(std::string gameName);
+        bool Start(IGameSettings& settings, IPlayerRegistry& registry);
 
     private:
-        INetworkSend&   mSend;
-        IRequest&       mRequest;
+        INetworkSend&               mSend;
+        IStartGameRequest&          mRequest;
 };

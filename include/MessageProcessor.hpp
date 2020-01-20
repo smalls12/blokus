@@ -6,6 +6,8 @@
 #include "IRegistrationSuccessful.hpp"
 #include "IRegistrationUnsuccessful.hpp"
 
+#include "IStartGameRequestData.hpp"
+
 #include "IPlayerMoveRequestData.hpp"
 
 #include "spdlog/spdlog.h"
@@ -24,7 +26,7 @@ class MessageProcessor
         void SetRegistrationUnsuccessfulEndpoint(std::function<bool(IRegistrationUnsuccessful&)> func) { mRegistrationUnsuccessfulEndpoint = func; }
 
         // Start Game
-        void SetStartGameEndpoint(std::function<bool()> func) { mStartGameEndpoint = func; }
+        void SetStartGameEndpoint(std::function<bool(IStartGameRequestData&)> func) { mStartGameEndpoint = func; }
 
         // Player Move
         void SetPlayerMoveEndpoint(std::function<bool(IPlayerMoveRequestData&)> func) { mPlayerMoveEndpoint = func; }
@@ -36,7 +38,7 @@ class MessageProcessor
         std::function<bool(IRegistrationUnsuccessful&)>         mRegistrationUnsuccessfulEndpoint;
 
         // Start Game
-        std::function<bool()>                                   mStartGameEndpoint;
+        std::function<bool(IStartGameRequestData&)>             mStartGameEndpoint;
 
         // Player Move
         std::function<bool(IPlayerMoveRequestData&)>            mPlayerMoveEndpoint;

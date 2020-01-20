@@ -1,7 +1,5 @@
 extern "C" {
 #include "raylib.h"
-
-#define RAYGUI_STATIC
 #include "raygui.h"
 }
 
@@ -17,9 +15,11 @@ StartGameLobbyScreen::StartGameLobbyScreen( IGameSettings& settings,
                                             MessageProcessor& messageProcessor,
                                             ReadGameNotification& readGameNotification,
                                             PlayerManager& playerManager,
-                                            StartGame& startGame)
+                                            StartGame& startGame,
+                                            IRandomizePlayerIds& randomizePlayerIds)
 :   GameLobbyScreen(settings, messageProcessor, readGameNotification, playerManager),
     mStartGame(startGame),
+    mRandomizePlayerIds(randomizePlayerIds),
     mFourPlayerMode(false),
     mStartGameButton(false)
 {
@@ -37,7 +37,8 @@ void StartGameLobbyScreen::UpdateReadyToStart()
     {
         spdlog::get("console")->debug("StartGameLobbyScreen::UpdateReadyToStart() - Start!");
 
-        mStartGame.Start(mSettings.GetGameName());
+        mRandomizePlayerIds.Randomize();
+        mStartGame.Start(mSettings, mPlayerManager);
         ReadyToStart();
     }
 }

@@ -83,7 +83,37 @@ std::string Message::BuildRegistrationResponseMessage(IRegistrationSuccessful& r
 
     _register->set_status(blokus::RegisterResp::SUCCESSFUL);
     _register->set_color(pc);
-    _register->set_id(response.GetPlayerId());
+
+    blokus::PlayerID id = blokus::PlayerID::BLOKUS_PLAYER_ONE;
+    switch (response.GetPlayerId())
+    {
+        case PlayerId::PLAYER_ONE:
+        {
+            id = blokus::PlayerID::BLOKUS_PLAYER_ONE;
+            break;
+        }
+        case PlayerId::PLAYER_TWO:
+        {
+            id = blokus::PlayerID::BLOKUS_PLAYER_TWO;
+            break;
+        }
+        case PlayerId::PLAYER_THREE:
+        {
+            id = blokus::PlayerID::BLOKUS_PLAYER_THREE;
+            break;
+        }
+        case PlayerId::PLAYER_FOUR:
+        {
+            id = blokus::PlayerID::BLOKUS_PLAYER_FOUR;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    _register->set_id(id);
     _register->set_username(response.GetUsername());
     _register->set_uuid(response.GetUuid());
 
@@ -175,7 +205,37 @@ bool Message::ParseRegistrationResponseMessage(std::string message, IRegistratio
         }
 
         r.SetPlayerColor(pc);
-        r.SetPlayerId(in.response().register_resp().id());
+
+        PlayerId id = PlayerId::PLAYER_ONE;
+        switch( in.response().register_resp().id() )
+        {
+            case blokus::PlayerID::BLOKUS_PLAYER_ONE:
+            {
+                id = PlayerId::PLAYER_ONE;
+                break;
+            }
+            case blokus::PlayerID::BLOKUS_PLAYER_TWO:
+            {
+                id = PlayerId::PLAYER_TWO;
+                break;
+            }
+            case blokus::PlayerID::BLOKUS_PLAYER_THREE:
+            {
+                id = PlayerId::PLAYER_THREE;
+                break;
+            }
+            case blokus::PlayerID::BLOKUS_PLAYER_FOUR:
+            {
+                id = PlayerId::PLAYER_FOUR;
+                break;
+            }
+            default:
+            {
+                // error
+                break;
+            }
+        }
+        r.SetPlayerId(id);
         r.SetUsername(in.response().register_resp().username());
         r.SetUuid(in.response().register_resp().uuid());
 
@@ -191,15 +251,70 @@ bool Message::ParseRegistrationResponseMessage(std::string message, IRegistratio
     return success;
 }
 
-std::string Message::BuildStartGameRequestMessage(IMessageBase& base)
+std::string Message::BuildStartGameRequestMessage(IMessageBase& base, IStartGameRequestData& data)
 {
     blokus::Message message;
     message.set_uuid(base.GetUniqueIdentifier());
 
     message.set_type(blokus::Message::REQUEST);
 
-    blokus::Request *blokus_request = message.mutable_request();
-    blokus_request->set_type(blokus::START_GAME);
+    blokus::Request *_reguest = message.mutable_request();
+    _reguest->set_type(blokus::START_GAME);
+
+    blokus::StartGameReq *_start_game = _reguest->mutable_start_game_req();
+
+    switch(data.GetGameConfiguration())
+    {
+        case GameConfiguration::TWO_PLAYER:
+        {
+            _start_game->set_configuration(blokus::GameConfiguration::BLOKUS_TWO_PLAYER);
+            break;
+        }
+        case GameConfiguration::FOUR_PLAYER:
+        {
+            _start_game->set_configuration(blokus::GameConfiguration::BLOKUS_FOUR_PLAYER);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    for( auto p : data.GetPlayers())
+    {
+        blokus::Player* _player = _start_game->add_player();
+        _player->set_uuid(p->getUuid());
+
+        switch(p->getPlayerId())
+        {
+            case PlayerId::PLAYER_ONE:
+            {
+                _player->set_id(blokus::PlayerID::BLOKUS_PLAYER_ONE);
+                break;
+            }
+            case PlayerId::PLAYER_TWO:
+            {
+                _player->set_id(blokus::PlayerID::BLOKUS_PLAYER_TWO);
+                break;
+            }
+            case PlayerId::PLAYER_THREE:
+            {
+                _player->set_id(blokus::PlayerID::BLOKUS_PLAYER_THREE);
+                break;
+            }
+            case PlayerId::PLAYER_FOUR:
+            {
+                _player->set_id(blokus::PlayerID::BLOKUS_PLAYER_FOUR);
+                break;
+            }
+            default:
+            {
+                _player->set_id(blokus::PlayerID::BLOKUS_PLAYER_UNASSIGNED);
+                break;
+            }
+        } 
+    }
 
     size_t size = message.ByteSizeLong(); 
     void *buffer = malloc(size);
@@ -208,7 +323,7 @@ std::string Message::BuildStartGameRequestMessage(IMessageBase& base)
     return std::string( (char *)buffer );
 }
 
-bool Message::ParseStartGameRequestMessage(std::string message)
+bool Message::ParseStartGameRequestMessage(std::string message, IStartGameRequestData& data)
 {
     blokus::Message in;
     in.ParseFromString(message);
@@ -230,7 +345,36 @@ std::string Message::BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMo
 
     blokus::PlayerMoveReq *_player_move = _request->mutable_player_move_req();
 
-    _player_move->set_id(data.GetPlayerId());
+    blokus::PlayerID id = blokus::PlayerID::BLOKUS_PLAYER_ONE;
+    switch (data.GetPlayerId())
+    {
+        case PlayerId::PLAYER_ONE:
+        {
+            id = blokus::PlayerID::BLOKUS_PLAYER_ONE;
+            break;
+        }
+        case PlayerId::PLAYER_TWO:
+        {
+            id = blokus::PlayerID::BLOKUS_PLAYER_TWO;
+            break;
+        }
+        case PlayerId::PLAYER_THREE:
+        {
+            id = blokus::PlayerID::BLOKUS_PLAYER_THREE;
+            break;
+        }
+        case PlayerId::PLAYER_FOUR:
+        {
+            id = blokus::PlayerID::BLOKUS_PLAYER_FOUR;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    _player_move->set_id(id);
 
     blokus::Piece piece = ConvertPieceToMessageEnum(data.GetPieceType());
     _player_move->set_piece(piece);
@@ -254,7 +398,37 @@ bool Message::ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequ
     
     spdlog::get("console")->debug("Message::ParseStartGameRequestMessage() - {}", in.DebugString());
 
-    data.SetPlayerId(in.request().player_move_req().id());
+    PlayerId id = PlayerId::PLAYER_ONE;;
+    switch(in.request().player_move_req().id())
+    {
+        case blokus::PlayerID::BLOKUS_PLAYER_ONE:
+        {
+            id = PlayerId::PLAYER_ONE;
+            break;
+        }
+        case blokus::PlayerID::BLOKUS_PLAYER_TWO:
+        {
+            id = PlayerId::PLAYER_TWO;
+            break;
+        }
+        case blokus::PlayerID::BLOKUS_PLAYER_THREE:
+        {
+            id = PlayerId::PLAYER_THREE;
+            break;
+        }
+        case blokus::PlayerID::BLOKUS_PLAYER_FOUR:
+        {
+            id = PlayerId::PLAYER_FOUR;
+            break;
+        }
+        default:
+        {
+            // error
+            break;
+        }
+    }
+
+    data.SetPlayerId(id);
 
     PieceType type = ParseMessageEnumToPiece(in.request().player_move_req().piece());
     data.SetPieceType(type);
@@ -327,6 +501,8 @@ blokus::Piece Message::ConvertPieceToMessageEnum(PieceType type)
             return blokus::Piece::I2;
         case PieceType::I1:
             return blokus::Piece::I1;
+        case PieceType::F:
+            return blokus::Piece::F;
     }
 
     return blokus::Piece::I5;
@@ -376,6 +552,8 @@ PieceType Message::ParseMessageEnumToPiece(blokus::Piece type)
             return PieceType::I2;
         case blokus::Piece::I1:
             return PieceType::I1;
+        case blokus::Piece::F:
+            return PieceType::F;
     }
 
     return PieceType::I5;

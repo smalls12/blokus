@@ -1,7 +1,5 @@
 extern "C" {
 #include "raylib.h"
-
-#define RAYGUI_STATIC
 #include "raygui.h"
 }
 

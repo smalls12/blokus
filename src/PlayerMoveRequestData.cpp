@@ -3,8 +3,9 @@
 #include "spdlog/spdlog.h"
 
 PlayerMoveRequestData::PlayerMoveRequestData()
+:   mPlayerId(PlayerId::PLAYER_ONE)
 {
-    spdlog::get("console")->debug("PlayerMoveRequestData::PlayePlayerMoveRequestDatarMoveRequest()");
+    spdlog::get("console")->debug("PlayerMoveRequestData::PlayerMoveRequestData()");
 }
 
 PlayerMoveRequestData::~PlayerMoveRequestData()

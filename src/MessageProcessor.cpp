@@ -8,6 +8,8 @@
 
 #include "Register.hpp"
 
+#include "StartGameRequestData.hpp"
+
 #include "PlayerMoveRequestData.hpp"
 
 MessageProcessor::MessageProcessor()
@@ -65,9 +67,11 @@ bool MessageProcessor::ProcessMessage(std::string data)
         case MessageType::STARTGAME_REQUEST:
         case MessageType::STARTGAME_RESPONSE:
         {
+            StartGameRequestData startGameRequestData;
+
             Message m;
-            m.ParseStartGameRequestMessage(data);
-            mStartGameEndpoint();
+            m.ParseStartGameRequestMessage(data, startGameRequestData);
+            mStartGameEndpoint(startGameRequestData);
             break;
         }
         case MessageType::PLAYERMOVE_REQUEST:

@@ -1,7 +1,5 @@
 extern "C" {
 #include "raylib.h"
-
-#define RAYGUI_STATIC
 #include "raygui.h"
 }
 
@@ -168,7 +166,7 @@ void GameLobbyScreen::CheckForNotification()
             {
                 case NotificationType::JOIN:
                 {
-                    auto newPlayer = std::make_shared<Player>( gn.getName(), gn.getUuid(), 2 );
+                    auto newPlayer = std::make_shared<Player>( gn.getName(), gn.getUuid() );
                     mPlayerManager.AddPlayerToGame(gn.getUuid(), newPlayer);
                     break;
                 }

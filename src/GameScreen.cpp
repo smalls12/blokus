@@ -5,6 +5,7 @@
 #include "Layout.hpp"
 
 #include "Piece.hpp"
+#include "PieceTypeString.hpp"
 
 #include "AddPiece.hpp"
 #include "ClearBoard.hpp"
@@ -132,7 +133,7 @@ bool GameScreen::ProcessPlayerMoveInternal()
         AddPiece::AddPieceToBoard( gb, mSelectedPiece, PlayerMoveLocation );
 
         PlayerMoveRequestData playerMoveRequestData;
-        playerMoveRequestData.SetPlayerId(1);
+        playerMoveRequestData.SetPlayerId(PlayerId::PLAYER_ONE);
         playerMoveRequestData.SetPieceType(mSelectedPieceType);
         playerMoveRequestData.SetLocation(PlayerMoveLocation);
 
@@ -152,7 +153,7 @@ bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
 {
     spdlog::get("console")->info("GameScreen::ProcessRemotePlayerMove() - Start");
 
-    // AddPiece::AddPieceToBoard( gb, SelectedPiece, PlayerMoveLocation );
+    AddPiece::AddPieceToBoard( gb, mGamePieceBank.GetPlayerPiece(data.GetPlayerId(), data.GetPieceType()), data.GetLocation() );
 
     return true;
 }
@@ -237,6 +238,8 @@ void GameScreen::UpdateGame(void)
                 if ( IsKeyPressed(KEY_SPACE) )
                 {
                     mSelectedPieceType = mPieceSelector.GetNextPiece();
+
+                    spdlog::get("console")->info("GameScreen::UpdateGame() - {} Piece Selected", PieceTypeString::PrintPieceTypeString(mSelectedPieceType));
                 }
 
                 if ( IsKeyPressed(KEY_ENTER) )
@@ -246,6 +249,8 @@ void GameScreen::UpdateGame(void)
 
                     mSelectedPiece = MoveablePiece(mGamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, mSelectedPieceType));
                     mSelectedPiece.SetLocation(Point( screenWidth / 2 - BOARD_SQUARE_SIZE * 2, screenHeight / 2 - BOARD_SQUARE_SIZE * 2 ));
+
+                    spdlog::get("console")->info("GameScreen::UpdateGame() - {} Piece Selected", PieceTypeString::PrintPieceTypeString(mSelectedPieceType));
 
                     AddPiece::AddPieceToBoard( ob, mSelectedPiece, Point( PiecePositionX, PiecePositionY ) );
 

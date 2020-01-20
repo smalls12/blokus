@@ -11,19 +11,19 @@
  * 
  * ========================================================= */
 
-#include "IRequest.hpp"
 #include "IStartGameMessage.hpp"
 #include "IMessageBase.hpp"
+#include "IStartGameRequest.hpp"
 
 #include "spdlog/spdlog.h"
 
-class StartGameRequest : public IRequest
+class StartGameRequest : public IStartGameRequest
 {
     public:
         StartGameRequest(IStartGameMessage& message, IMessageBase& base);
         ~StartGameRequest();
 
-        std::string Build();
+        std::string Build(IStartGameRequestData& data);
 
     private:
         IStartGameMessage&      mMessage;

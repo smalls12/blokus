@@ -12,14 +12,15 @@
  * ========================================================= */
 
 #include "IMessageBase.hpp"
+#include "IStartGameRequestData.hpp"
 
 #include <string>
 
 class IStartGameMessage
 {
     public:
-        virtual std::string BuildStartGameRequestMessage(IMessageBase& base) = 0;
+        virtual std::string BuildStartGameRequestMessage(IMessageBase& base, IStartGameRequestData& data) = 0;
 
-        virtual bool ParseStartGameRequestMessage(std::string message) = 0;
+        virtual bool ParseStartGameRequestMessage(std::string message, IStartGameRequestData& data) = 0;
 
 };

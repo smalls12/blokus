@@ -136,26 +136,27 @@ std::map<PieceType, Piece> BuildGamePieces::Build(PlayerColor color)
                  .Set( Point(3, 4), GridSquare::P1 );
 
     std::map<PieceType, Piece> pieces = {
-        { PieceType::I5, Piece( BlokusPiece1 ) },
-        { PieceType::N, Piece( BlokusPiece2 ) },
-        { PieceType::V5, Piece( BlokusPiece3 ) },
-        { PieceType::T5, Piece( BlokusPiece4 ) },
-        { PieceType::U, Piece( BlokusPiece5 ) },
-        { PieceType::L5, Piece( BlokusPiece6 ) },
-        { PieceType::Y, Piece( BlokusPiece7 ) },
-        { PieceType::Z5, Piece( BlokusPiece8 ) },
-        { PieceType::W, Piece( BlokusPiece9 ) },
-        { PieceType::P, Piece( BlokusPiece10 ) },
-        { PieceType::X, Piece( BlokusPiece11 ) },
-        { PieceType::Z4, Piece( BlokusPiece12 ) },
-        { PieceType::I4, Piece( BlokusPiece13 ) },
-        { PieceType::L4, Piece( BlokusPiece14 ) },
-        { PieceType::O, Piece( BlokusPiece15 ) },
-        { PieceType::T4, Piece( BlokusPiece16 ) },
-        { PieceType::I3, Piece( BlokusPiece17 ) },
-        { PieceType::V3, Piece( BlokusPiece18 ) },
-        { PieceType::I2, Piece( BlokusPiece19 ) },
-        { PieceType::I1, Piece( BlokusPiece20 ) }
+        { PieceType::I1, Piece( BlokusPiece1 ) },
+        { PieceType::I2, Piece( BlokusPiece2 ) },
+        { PieceType::V3, Piece( BlokusPiece3 ) },
+        { PieceType::I3, Piece( BlokusPiece4 ) },
+        { PieceType::O, Piece( BlokusPiece5 ) },
+        { PieceType::T4, Piece( BlokusPiece6 ) },
+        { PieceType::I4, Piece( BlokusPiece7 ) },
+        { PieceType::L4, Piece( BlokusPiece8 ) },
+        { PieceType::Z4, Piece( BlokusPiece9 ) },
+        { PieceType::L5, Piece( BlokusPiece10 ) },
+        { PieceType::T5, Piece( BlokusPiece11 ) },
+        { PieceType::V5, Piece( BlokusPiece12 ) },
+        { PieceType::N, Piece( BlokusPiece13 ) },
+        { PieceType::Z5, Piece( BlokusPiece14 ) },
+        { PieceType::I5, Piece( BlokusPiece15 ) },
+        { PieceType::P, Piece( BlokusPiece16 ) },
+        { PieceType::W, Piece( BlokusPiece17 ) },
+        { PieceType::F, Piece( BlokusPiece18 ) },
+        { PieceType::X, Piece( BlokusPiece19 ) },
+        { PieceType::U, Piece( BlokusPiece20 ) },
+        { PieceType::Y, Piece( BlokusPiece21 ) }
     };
 
     return pieces;

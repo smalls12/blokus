@@ -8,6 +8,7 @@
 
 --------------------------------------------------------------- */
  
+#include "IPlayerRegistry.hpp"
 #include "RegisterResponse.hpp"
 #include "Player.hpp"
 
@@ -16,7 +17,7 @@
 #include <mutex>
 #include <memory>
 
-class PlayerManager
+class PlayerManager : public IPlayerRegistry
 {
     public:
         PlayerManager(RegisterResponse& registerResponse);
