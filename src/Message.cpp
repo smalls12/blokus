@@ -161,10 +161,10 @@ std::string Message::BuildStartGameRequestMessage(IMessageBase& base, IStartGame
 
     for( auto p : data.GetPlayers())
     {
-        blokus::Player* _player = _start_game->add_player();
-        _player->set_uuid(p->getUuid());
+        blokus::Player* _player = _start_game->add_players();
+        _player->set_uuid(p.first);
 
-        switch(p->getPlayerId())
+        switch(p.second)
         {
             case PlayerId::PLAYER_ONE:
             {
@@ -207,6 +207,58 @@ bool Message::ParseStartGameRequestMessage(std::string message, IStartGameReques
     in.ParseFromString(message);
     
     spdlog::get("console")->debug("Message::ParseStartGameRequestMessage() - {}", in.DebugString());
+
+    switch(in.request().start_game_req().configuration())
+    {
+        case blokus::GameConfiguration::BLOKUS_TWO_PLAYER:
+        {
+            data.SetGameConfiguration(GameConfiguration::TWO_PLAYER);
+            break;
+        }
+        case blokus::GameConfiguration::BLOKUS_FOUR_PLAYER:
+        {
+            data.SetGameConfiguration(GameConfiguration::FOUR_PLAYER);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    std::vector<std::pair<std::string, PlayerId>> players;
+    for (int i = 0; i < in.request().start_game_req().players_size(); i++)
+    {
+        switch(in.request().start_game_req().players(i).id())
+        {
+            case blokus::PlayerID::BLOKUS_PLAYER_ONE:
+            {
+                players.push_back(std::pair<std::string, PlayerId>(in.request().start_game_req().players(i).uuid(), PlayerId::PLAYER_ONE));
+                break;
+            }
+            case blokus::PlayerID::BLOKUS_PLAYER_TWO:
+            {
+                players.push_back(std::pair<std::string, PlayerId>(in.request().start_game_req().players(i).uuid(), PlayerId::PLAYER_TWO));
+                break;
+            }
+            case blokus::PlayerID::BLOKUS_PLAYER_THREE:
+            {
+                players.push_back(std::pair<std::string, PlayerId>(in.request().start_game_req().players(i).uuid(), PlayerId::PLAYER_THREE));
+                break;
+            }
+            case blokus::PlayerID::BLOKUS_PLAYER_FOUR:
+            {
+                players.push_back(std::pair<std::string, PlayerId>(in.request().start_game_req().players(i).uuid(), PlayerId::PLAYER_FOUR));
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+
+    data.SetPlayers(players);
 
     return true;
 }

@@ -20,7 +20,12 @@ bool StartGame::Start(IGameSettings& settings, IPlayerRegistry& registry)
 
     StartGameRequestData startGameRequestData;
     startGameRequestData.SetGameConfiguration(settings.GetGameConfiguration());
-    startGameRequestData.SetPlayers(registry.GetListOfPlayers());
+    std::vector<std::pair<std::string, PlayerId>> players;
+    for( auto p : registry.GetListOfPlayers())
+    {
+        players.push_back(std::pair<std::string, PlayerId>(p->getUuid(), p->getPlayerId()));
+    }
+    startGameRequestData.SetPlayers(players);
 
     std::string message = mRequest.Build(startGameRequestData);
     mSend.Send( settings.GetGameName(), message );

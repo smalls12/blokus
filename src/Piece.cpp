@@ -25,7 +25,11 @@ Piece::~Piece()
 
 }
 
-std::ostream& operator <<(std::ostream& outputStream, const Piece& l)
+std::ostream& operator <<(std::ostream& outputStream, const Piece& p)
 {
+    outputStream << "\n===== Layout =====";
+    outputStream << p.mLayout;
+    outputStream << "\n===== Layout =====";
+
     return outputStream;
 }

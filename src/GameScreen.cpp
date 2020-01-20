@@ -23,6 +23,8 @@
 
 #include "PiecesAvailableForPlayLocations.hpp"
 
+#include "PlayerIdString.hpp"
+
 extern "C" {
 #include "raylib.h"
 }
@@ -250,8 +252,9 @@ void GameScreen::UpdateGame(void)
                     mSelectedPiece = MoveablePiece(mGamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, mSelectedPieceType));
                     mSelectedPiece.SetLocation(Point( screenWidth / 2 - BOARD_SQUARE_SIZE * 2, screenHeight / 2 - BOARD_SQUARE_SIZE * 2 ));
 
-                    spdlog::get("console")->info("GameScreen::UpdateGame() - {} Piece Selected", PieceTypeString::PrintPieceTypeString(mSelectedPieceType));
-
+                    std::stringstream sstream;
+                    sstream << mSelectedPiece;
+                    spdlog::get("console")->info("GameScreen::UpdateGame() - {0} Piece Selected {}", PieceTypeString::PrintPieceTypeString(mSelectedPieceType), sstream.str());
                     AddPiece::AddPieceToBoard( ob, mSelectedPiece, Point( PiecePositionX, PiecePositionY ) );
 
                     selected = true;
@@ -503,8 +506,24 @@ void GameScreen::UnloadGame(void)
 bool GameScreen::Show()
 {
     InitGame();
-
-    InitWindow(screenWidth, screenHeight, "Blokus");
+    
+    std::stringstream sstream;
+    sstream << "Blokus";
+    sstream << " - ";
+    std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+    sstream << uuid;
+    sstream << " - ";
+    std::shared_ptr<Player> player;
+    if( mPlayerManager.GetPlayer(uuid, player) )
+    {
+        sstream << PlayerIdString::PrintPlayerIdString(player->getPlayerId());
+    }
+    else
+    {
+        spdlog::get("console")->warn("GameScreen::Show() - Blah");
+    }
+    
+    InitWindow(screenWidth, screenHeight, sstream.str().c_str());
 
     SetTargetFPS(30);
 

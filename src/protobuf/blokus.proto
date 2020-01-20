@@ -52,7 +52,7 @@ message Player {
 // upon starting the game, inform all players of the player ids
 message StartGameReq {
     GameConfiguration configuration = 1;
-    repeated Player player = 2;
+    repeated Player players = 2;
 }
 
 // ================================================================================

@@ -9,5 +9,5 @@ class IPlayerRegistry
 {
     public:
 
-        virtual std::vector<std::shared_ptr<Player>> GetListOfPlayers() = 0;
+        virtual std::vector<std::shared_ptr<Player>> GetListOfPlayers() const = 0;
 };

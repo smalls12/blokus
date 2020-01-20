@@ -39,7 +39,7 @@ void StartGameLobbyScreen::UpdateReadyToStart()
 
         mRandomizePlayerIds.Randomize();
         mStartGame.Start(mSettings, mPlayerManager);
-        ReadyToStart();
+        mReadyToStart = true;
     }
 }
 

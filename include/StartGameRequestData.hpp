@@ -20,10 +20,10 @@ class StartGameRequestData : public IStartGameRequestData
         void SetGameConfiguration(GameConfiguration config) { mGameConfiguration = config; }
         GameConfiguration GetGameConfiguration() { return mGameConfiguration; }
 
-        void SetPlayers(std::vector<std::shared_ptr<Player>> players) { mPlayers = players; }
-        std::vector<std::shared_ptr<Player>> GetPlayers() { return mPlayers; }
+        void SetPlayers(std::vector<std::pair<std::string, PlayerId>> players) { mPlayers = players; }
+        std::vector<std::pair<std::string, PlayerId>> GetPlayers() { return mPlayers; }
 
     private:
-        GameConfiguration                           mGameConfiguration;
-        std::vector<std::shared_ptr<Player>>        mPlayers;
+        GameConfiguration                                   mGameConfiguration;
+        std::vector<std::pair<std::string, PlayerId>>       mPlayers;
 };

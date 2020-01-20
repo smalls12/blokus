@@ -18,7 +18,7 @@ class GameLobbyScreen
                         PlayerManager& playerManager);
         ~GameLobbyScreen();
 
-        bool ReadyToStart();
+        bool ReadyToStart(IStartGameRequestData& data);
         void Show();
 
     protected:

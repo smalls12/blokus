@@ -53,8 +53,19 @@ GameLobbyScreen::~GameLobbyScreen()
     spdlog::get("console")->info("GameLobbyScreen::~GameLobbyScreen() - Start");
 }
 
-bool GameLobbyScreen::ReadyToStart()
+bool GameLobbyScreen::ReadyToStart(IStartGameRequestData& data)
 {
+    spdlog::get("console")->info("GameLobbyScreen::ReadyToStart()");
+    
+    mSettings.SetGameConfiguration(data.GetGameConfiguration());
+    for( auto p : data.GetPlayers() )
+    {
+        spdlog::get("console")->info("GameLobbyScreen::ReadyToStart() - Assign Player ID");
+
+        std::shared_ptr<Player> player;
+        mPlayerManager.GetPlayer(p.first, player);
+        player->AssignPlayerID(p.second);
+    }
     mReadyToStart = true;
 }
 

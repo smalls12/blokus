@@ -2,10 +2,13 @@
 
 #include "Register.hpp"
 
+#include <sstream>
+
 #include "spdlog/spdlog.h"
 
 PlayerManager::PlayerManager(RegisterResponse& registerResponse)
 :   mRegisterResponse(registerResponse),
+    mLocalPlayerUniqueIdentifier(),
     mPlayers(),
     mPlayersMutex()
 {
@@ -31,11 +34,11 @@ bool PlayerManager::GetPlayer(std::string uuid, std::shared_ptr<Player>& player)
     return false;
 }
 
-std::vector<std::shared_ptr<Player>> PlayerManager::GetListOfPlayers()
+std::vector<std::shared_ptr<Player>> PlayerManager::GetListOfPlayers() const
 {
     std::unique_lock<std::mutex> lock(mPlayersMutex);
     std::vector<std::shared_ptr<Player>> activeGames;
-    std::map<std::string, std::shared_ptr<Player>>::iterator it;
+    std::map<std::string, std::shared_ptr<Player>>::const_iterator it;
 
     for ( it = mPlayers.begin(); it != mPlayers.end(); it++ )
     {
@@ -51,6 +54,17 @@ bool PlayerManager::AddPlayerToGame(std::string uuid, std::shared_ptr<Player> pl
 
     std::unique_lock<std::mutex> lock(mPlayersMutex);
     mPlayers.insert( std::pair<std::string, std::shared_ptr<Player>>(uuid, player) );
+    return true;
+}
+
+bool PlayerManager::AddLocalPlayerToGame(std::string uuid, std::shared_ptr<Player> player)
+{
+    spdlog::get("console")->info("PlayerManager::AddLocalPlayerToGame() - Add Local Player {}", uuid);
+
+    mLocalPlayerUniqueIdentifier = uuid;
+
+    AddPlayerToGame(uuid, player);
+ 
     return true;
 }
 
@@ -82,9 +96,9 @@ bool PlayerManager::RemovePlayerFromGame(IRegistrationUnsuccessful& request)
     return false;
 }
 
-bool PlayerManager::RegisterLocalPlayer(IRegistrationSuccessful& request)
+bool PlayerManager::RegisterPlayer(IRegistrationSuccessful& request)
 {
-    spdlog::get("console")->info("PlayerManager::RegisterLocalPlayer() - Register");
+    spdlog::get("console")->info("PlayerManager::RegisterPlayer() - Register");
 
     std::shared_ptr<Player> player;
     if ( GetPlayer(request.GetUuid(), player) )
@@ -92,26 +106,26 @@ bool PlayerManager::RegisterLocalPlayer(IRegistrationSuccessful& request)
         if ( player )
         {
             player->Register();
-            spdlog::get("console")->info("PlayerManager::RegisterLocalPlayer() - Player {} registered!", request.GetUuid());
+            spdlog::get("console")->info("PlayerManager::RegisterPlayer() - Player {} registered!", request.GetUuid());
         }
         else
         {
-            spdlog::get("stderr")->error("PlayerManager::RegisterLocalPlayer() - Player {} not found!", request.GetUuid());
+            spdlog::get("stderr")->error("PlayerManager::RegisterPlayer() - Player {} not found!", request.GetUuid());
         }
     }
     else
     {
-        spdlog::get("stderr")->error("PlayerManager::RegisterLocalPlayer() - Player {} does not exist, cannot register.", request.GetUuid());
+        spdlog::get("stderr")->error("PlayerManager::RegisterPlayer() - Player {} does not exist, cannot register.", request.GetUuid());
     }
 
-    spdlog::get("console")->info("PlayerManager::RegisterLocalPlayer() - Done");
+    spdlog::get("console")->info("PlayerManager::RegisterPlayer() - Done");
 
     return true;
 }
 
-bool PlayerManager::RegisterRemotePlayer(IRegisterRequest& request)
+bool PlayerManager::RegisterPlayer(IRegisterRequest& request)
 {
-    spdlog::get("console")->info("PlayerManager::RegisterRemotePlayer() - Register");
+    spdlog::get("console")->info("PlayerManager::RegisterPlayer() - Register");
 
     std::shared_ptr<Player> player;
     if ( GetPlayer(request.GetUuid(), player) )
@@ -119,7 +133,7 @@ bool PlayerManager::RegisterRemotePlayer(IRegisterRequest& request)
         if ( player )
         {
             player->Register();
-            spdlog::get("console")->info("PlayerManager::RegisterRemotePlayer() - Player {} registered!", request.GetUuid());
+            spdlog::get("console")->info("PlayerManager::RegisterPlayer() - Player {} registered!", request.GetUuid());
 
             // the player manager will assign colors and player ids based off of who came first
 
@@ -130,15 +144,31 @@ bool PlayerManager::RegisterRemotePlayer(IRegisterRequest& request)
         }
         else
         {
-            spdlog::get("stderr")->error("PlayerManager::RegisterRemotePlayer() - Player {} not found!", request.GetUuid());
+            spdlog::get("stderr")->error("PlayerManager::RegisterPlayer() - Player {} not found!", request.GetUuid());
         }
     }
     else
     {
-        spdlog::get("stderr")->error("PlayerManager::RegisterRemotePlayer() - Player {} does not exist, cannot register.", request.GetUuid());
+        spdlog::get("stderr")->error("PlayerManager::RegisterPlayer() - Player {} does not exist, cannot register.", request.GetUuid());
     }
 
-    spdlog::get("console")->info("PlayerManager::RegisterRemotePlayer() - Done");
+    spdlog::get("console")->info("PlayerManager::RegisterPlayer() - Done");
 
     return true;
+}
+
+std::ostream& operator <<(std::ostream& outputStream, const PlayerManager& playerManager)
+{
+    outputStream << "\n===== Players =====\n";
+
+    for( auto p : playerManager.GetListOfPlayers() )
+    {
+        std::stringstream sstream;
+        sstream << *p;
+        outputStream << sstream.str();
+    }
+    
+    outputStream << "\n===== Players =====\n";
+
+    return outputStream;
 }

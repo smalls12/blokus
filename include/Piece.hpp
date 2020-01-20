@@ -31,8 +31,11 @@ class Piece
 
         friend std::ostream& operator <<(std::ostream& outputStream, const Piece& p);
 
-    private:
+    protected:
         // represents the available space inside the layout
         Layout      mLayout;
         Padding     mPadding;
+
+    private:
+
 };

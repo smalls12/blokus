@@ -1,8 +1,9 @@
 #pragma once
 
-#include <string>
-
 #include "PlayerId.hpp"
+
+#include <string>
+#include <ostream>
 
 class Player {
 
@@ -60,6 +61,8 @@ public:
     }
 
     void AssignPlayerID(PlayerId id) { mPlayerId = id; }
+
+    friend std::ostream& operator <<(std::ostream& outputStream, const Player& player);
 
 private:
     std::string mUsername;
