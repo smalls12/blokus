@@ -35,6 +35,8 @@ extern "C" {
 #include "PlayerMoveRequest.hpp"
 #include "ProcessPlayerMove.hpp"
 
+#include "GameFlowManager.hpp"
+
 #include <sstream>
 
 #include "spdlog/spdlog.h"
@@ -90,6 +92,7 @@ void ShowGameLobby_StartGame(Game gm)
 
     // create local user
     auto myself = std::make_shared<Player>( gm.GetUsername(), network.GetUniqueIdentifier() );
+    myself->Register();
 
     // add local user to player manager
     playerManager.AddLocalPlayerToGame(network.GetUniqueIdentifier(), myself);
@@ -107,11 +110,6 @@ void ShowGameLobby_StartGame(Game gm)
     StartGameRequest startGameRequest(m, startGameMessageBase);
     StartGame sg(network, startGameRequest);
 
-    // build player move object
-    MessageBase playerMoveMessageBase(network);
-    PlayerMoveRequest playerMoveRequest(m, playerMoveMessageBase);
-    ProcessPlayerMove processPlayerMove(gameLobby, playerMoveRequest);
-
     // create read game notification object
     ReadGameNotification rgn(network, gm.GetGameName());
 
@@ -128,8 +126,16 @@ void ShowGameLobby_StartGame(Game gm)
     sstream << playerManager;
     spdlog::get("console")->info("Blokus::Players {}", sstream.str());
 
+    // build player move object
+    MessageBase playerMoveMessageBase(network);
+    PlayerMoveRequest playerMoveRequest(m, playerMoveMessageBase);
+    ProcessPlayerMove processPlayerMove(gameLobby, playerMoveRequest);
+
+    // create the game flow manager
+    GameFlowManager gameFlowManager(gm);
+
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, gameFlowManager);
     
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 
@@ -205,8 +211,11 @@ void ShowGameLobby_JoinGame(Game gm)
     PlayerMoveRequest playerMoveRequest(m, playerMoveMessageBase);
     ProcessPlayerMove processPlayerMove(gameLobby, playerMoveRequest);
 
+    // create the game flow manager
+    GameFlowManager gameFlowManager(gm);
+
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, gameFlowManager);
 
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 

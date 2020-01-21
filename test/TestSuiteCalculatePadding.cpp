@@ -49,7 +49,7 @@ TEST_F(TestSuiteCalculatePadding, BlankLayout)
 TEST_F(TestSuiteCalculatePadding, EvenPadding)
 {
     Layout tmp_layout;
-    tmp_layout.Set( Point(2, 2), GridSquare::P1 );
+    tmp_layout.Set( Point(2, 2), GridSquare::PLAYER_ONE );
     Padding tmp_padding = CalculatePadding::CalculatePaddingFromLayout(tmp_layout);
 
 	EXPECT_EQ(tmp_padding.GetLeft(), 2);
@@ -61,8 +61,8 @@ TEST_F(TestSuiteCalculatePadding, EvenPadding)
 TEST_F(TestSuiteCalculatePadding, ShallowTopPadding)
 {
     Layout tmp_layout;
-    tmp_layout.Set( Point(1, 2), GridSquare::P1 );
-    tmp_layout.Set( Point(2, 2), GridSquare::P1 );
+    tmp_layout.Set( Point(1, 2), GridSquare::PLAYER_ONE );
+    tmp_layout.Set( Point(2, 2), GridSquare::PLAYER_ONE );
     Padding tmp_padding = CalculatePadding::CalculatePaddingFromLayout(tmp_layout);
 
 	EXPECT_EQ(tmp_padding.GetLeft(), 2);
@@ -74,8 +74,8 @@ TEST_F(TestSuiteCalculatePadding, ShallowTopPadding)
 TEST_F(TestSuiteCalculatePadding, ShallowBottomPadding)
 {
     Layout tmp_layout;
-    tmp_layout.Set( Point(2, 2), GridSquare::P1 );
-    tmp_layout.Set( Point(3, 2), GridSquare::P1 );
+    tmp_layout.Set( Point(2, 2), GridSquare::PLAYER_ONE );
+    tmp_layout.Set( Point(3, 2), GridSquare::PLAYER_ONE );
     Padding tmp_padding = CalculatePadding::CalculatePaddingFromLayout(tmp_layout);
 
 	EXPECT_EQ(tmp_padding.GetLeft(), 2);
@@ -87,8 +87,8 @@ TEST_F(TestSuiteCalculatePadding, ShallowBottomPadding)
 TEST_F(TestSuiteCalculatePadding, ShallowLeftPadding)
 {
     Layout tmp_layout;
-    tmp_layout.Set( Point(2, 1), GridSquare::P1 );
-    tmp_layout.Set( Point(2, 2), GridSquare::P1 );
+    tmp_layout.Set( Point(2, 1), GridSquare::PLAYER_ONE );
+    tmp_layout.Set( Point(2, 2), GridSquare::PLAYER_ONE );
     Padding tmp_padding = CalculatePadding::CalculatePaddingFromLayout(tmp_layout);
 
 	EXPECT_EQ(tmp_padding.GetLeft(), 1);
@@ -100,8 +100,8 @@ TEST_F(TestSuiteCalculatePadding, ShallowLeftPadding)
 TEST_F(TestSuiteCalculatePadding, ShallowRightPadding)
 {
     Layout tmp_layout;
-    tmp_layout.Set( Point(2, 2), GridSquare::P1 );
-    tmp_layout.Set( Point(2, 3), GridSquare::P1 );
+    tmp_layout.Set( Point(2, 2), GridSquare::PLAYER_ONE );
+    tmp_layout.Set( Point(2, 3), GridSquare::PLAYER_ONE );
     Padding tmp_padding = CalculatePadding::CalculatePaddingFromLayout(tmp_layout);
 
 	EXPECT_EQ(tmp_padding.GetLeft(), 2);

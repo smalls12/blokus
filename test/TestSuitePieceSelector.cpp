@@ -42,41 +42,41 @@ TEST_F(TestSuitePieceSelector, Initialize)
 TEST_F(TestSuitePieceSelector, FirstElement)
 {
     PieceSelector pieceSelector;
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I5 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I1 );
 }
 
 TEST_F(TestSuitePieceSelector, SecondElement)
 {
     PieceSelector pieceSelector;
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I5 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::N );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I1 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I2 );
 }
 
 TEST_F(TestSuitePieceSelector, FullWrapAround)
 {
     PieceSelector pieceSelector;
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I5 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::N );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::V5 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::T5 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::U );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::L5 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::Y );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::Z5 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::W );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::P );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::X );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::Z4 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I4 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::L4 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I1 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I2 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::V3 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I3 );
     EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::O );
     EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::T4 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I3 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::V3 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I2 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I1 );
-    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I5 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I4 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::L4 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::Z4 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::L5 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::T5 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::V5 );
     EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::N );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::Z5 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I5 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::P );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::W );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::U );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::F );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::X );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I1 );
+    EXPECT_EQ( pieceSelector.GetNextPiece(), PieceType::I2 );
 }
 
 // }  // namespace - could surround Project1Test in a namespace

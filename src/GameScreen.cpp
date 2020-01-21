@@ -51,27 +51,35 @@ namespace
     static int PiecePositionX = 0;
     static int PiecePositionY = 0;
 
-    static Color playerColor;
-
     static bool beginPlay = true;
+
+    static PlayerId currentPlayersTurn = PlayerId::PLAYER_ONE;
 }
 
 GameScreen::GameScreen(IGameSettings& settings,
                        MessageProcessor& messageProcessor,
                        ReadGameNotification& readGameNotification,
                        PlayerManager& playerManager,
-                       ProcessPlayerMove& processPlayerMove )
+                       ProcessPlayerMove& processPlayerMove,
+                       GameFlowManager& gameFlowManager )
 :   mSettings(settings),
     mMessageProcessor(messageProcessor),
     mReadGameNotification(readGameNotification),
     mPlayerManager(playerManager),
     mProcessPlayerMove(processPlayerMove),
+    mGameFlowManager(gameFlowManager),
     mGamePieceBank(),
     mPieceSelector(),
     mSelectedPieceType(mPieceSelector.GetNextPiece()),
     mSelectedPiece(mGamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, mSelectedPieceType))
 {
     spdlog::get("console")->info("GameScreen = ::GameScreen() - Start");
+
+    std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+    std::shared_ptr<Player> player;
+    mPlayerManager.GetPlayer(uuid, player);
+
+    mSelectedPiece = mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType);
 }
 
 GameScreen::~GameScreen()
@@ -82,8 +90,6 @@ GameScreen::~GameScreen()
 // Initialize game variables
 void GameScreen::InitGame(void)
 {
-    playerColor = RED;
-
     PiecePositionX = 0;
     PiecePositionY = 0;
 
@@ -134,8 +140,12 @@ bool GameScreen::ProcessPlayerMoveInternal()
 
         AddPiece::AddPieceToBoard( gb, mSelectedPiece, PlayerMoveLocation );
 
+        std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+        std::shared_ptr<Player> player;
+        mPlayerManager.GetPlayer(uuid, player);
+
         PlayerMoveRequestData playerMoveRequestData;
-        playerMoveRequestData.SetPlayerId(PlayerId::PLAYER_ONE);
+        playerMoveRequestData.SetPlayerId(player->getPlayerId());
         playerMoveRequestData.SetPieceType(mSelectedPieceType);
         playerMoveRequestData.SetLocation(PlayerMoveLocation);
 
@@ -157,6 +167,9 @@ bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
 
     AddPiece::AddPieceToBoard( gb, mGamePieceBank.GetPlayerPiece(data.GetPlayerId(), data.GetPieceType()), data.GetLocation() );
 
+    // advance to next player
+    currentPlayersTurn = mGameFlowManager.NextPlayersTurn();
+
     return true;
 }
 
@@ -170,7 +183,11 @@ void GameScreen::UpdateGame(void)
             pause = !pause;
         }
 
-        if (!pause)
+        std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+        std::shared_ptr<Player> player;
+        mPlayerManager.GetPlayer(uuid, player);
+
+        if (!pause && ( currentPlayersTurn == player->getPlayerId() ))
         {
             if( selected )
             {
@@ -231,6 +248,9 @@ void GameScreen::UpdateGame(void)
                 {
                     if ( ProcessPlayerMoveInternal() )
                     {
+                        // advance to next player
+                        currentPlayersTurn = mGameFlowManager.NextPlayersTurn();
+
                         selected = false;
                     }
                 }
@@ -249,7 +269,11 @@ void GameScreen::UpdateGame(void)
                     PiecePositionX = 8;
                     PiecePositionY = 8;
 
-                    mSelectedPiece = MoveablePiece(mGamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, mSelectedPieceType));
+                    std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+                    std::shared_ptr<Player> player;
+                    mPlayerManager.GetPlayer(uuid, player);
+
+                    mSelectedPiece = MoveablePiece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType));
                     mSelectedPiece.SetLocation(Point( screenWidth / 2 - BOARD_SQUARE_SIZE * 2, screenHeight / 2 - BOARD_SQUARE_SIZE * 2 ));
 
                     std::stringstream sstream;
@@ -287,24 +311,48 @@ void GameScreen::DrawBoard()
         for (int j = 0; j < GRID_HORIZONTAL_SIZE; j++)
         {
             // Draw each square of the grid
-            if (gb.Get( Point(i, j) ) == GridSquare::EMPTY)
+            switch( gb.Get(Point(i, j)) )
             {
-                DrawLine(offset.x, offset.y, offset.x + BOARD_SQUARE_SIZE, offset.y, LIGHTGRAY );
-                DrawLine(offset.x, offset.y, offset.x, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
-                DrawLine(offset.x + BOARD_SQUARE_SIZE, offset.y, offset.x + BOARD_SQUARE_SIZE, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
-                DrawLine(offset.x, offset.y + BOARD_SQUARE_SIZE, offset.x + BOARD_SQUARE_SIZE, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
-                offset.x += BOARD_SQUARE_SIZE;
+                case GridSquare::EMPTY:
+                {
+                    DrawLine(offset.x, offset.y, offset.x + BOARD_SQUARE_SIZE, offset.y, LIGHTGRAY );
+                    DrawLine(offset.x, offset.y, offset.x, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
+                    DrawLine(offset.x + BOARD_SQUARE_SIZE, offset.y, offset.x + BOARD_SQUARE_SIZE, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
+                    DrawLine(offset.x, offset.y + BOARD_SQUARE_SIZE, offset.x + BOARD_SQUARE_SIZE, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
+                    break;
+                }
+                case GridSquare::BLOCK:
+                {
+                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, LIGHTGRAY);
+                    break;
+                }
+                case GridSquare::PLAYER_ONE:
+                {
+                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, BLUE);
+                    break;
+                }
+                case GridSquare::PLAYER_TWO:
+                {
+                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, RED);
+                    break;
+                }
+                case GridSquare::PLAYER_THREE:
+                {
+                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, YELLOW);
+                    break;
+                }
+                case GridSquare::PLAYER_FOUR:
+                {
+                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, GREEN);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
             }
-            else if (gb.Get( Point(i, j) ) == GridSquare::BLOCK)
-            {
-                DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, LIGHTGRAY);
-                offset.x += BOARD_SQUARE_SIZE;
-            }
-            else
-            {
-                DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, playerColor);
-                offset.x += BOARD_SQUARE_SIZE;
-            }
+
+            offset.x += BOARD_SQUARE_SIZE;
         }
 
         offset.x = controller;
@@ -328,25 +376,52 @@ void GameScreen::DrawGamePieces()
         {
             for (int j = 0; j < 5; j++)
             {
-                Piece piece = mGamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, it->first);
-                if (piece.GetLayout().Get(i, j) == GridSquare::EMPTY)
+                std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+                std::shared_ptr<Player> player;
+                mPlayerManager.GetPlayer(uuid, player);
+
+                Piece piece = mGamePieceBank.GetPlayerPiece(player->getPlayerId(), it->first);
+                switch( piece.GetLayout().Get(i, j) )
                 {
-                    DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, LIGHTGRAY );
-                    DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
-                    DrawLine(pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
-                    DrawLine(pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
-                    pieceOffset.x += PIECE_SQUARE_SIZE;
+                    case GridSquare::EMPTY:
+                    {
+                        DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, LIGHTGRAY );
+                        DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
+                        DrawLine(pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
+                        DrawLine(pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
+                        break;
+                    }
+                    case GridSquare::BLOCK:
+                    {
+                        break;
+                    }
+                    case GridSquare::PLAYER_ONE:
+                    {
+                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, BLUE);
+                        break;
+                    }
+                    case GridSquare::PLAYER_TWO:
+                    {
+                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, RED);
+                        break;
+                    }
+                    case GridSquare::PLAYER_THREE:
+                    {
+                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, YELLOW);
+                        break;
+                    }
+                    case GridSquare::PLAYER_FOUR:
+                    {
+                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, GREEN);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
                 }
-                else if (piece.GetLayout().Get(i, j) == GridSquare::BLOCK)
-                {
-                    // won't happen
-                    pieceOffset.x += BOARD_SQUARE_SIZE;
-                }
-                else
-                {
-                    DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, playerColor);
-                    pieceOffset.x += PIECE_SQUARE_SIZE;
-                }
+
+                pieceOffset.x += PIECE_SQUARE_SIZE;
             }
 
             pieceOffset.x = controller;
@@ -371,22 +446,43 @@ void GameScreen::DrawOverlayBoard()
         {
             for (int j = 0; j < GRID_HORIZONTAL_SIZE; j++)
             {
-                // Draw each square of the grid
-                if (ob.Get( Point(i, j) ) == GridSquare::EMPTY)
+                switch( ob.Get( Point(i, j) ) )
                 {
-                    // dont draw
-                    offset.x += BOARD_SQUARE_SIZE;
+                    case GridSquare::EMPTY:
+                    {
+                        break;
+                    }
+                    case GridSquare::BLOCK:
+                    {
+                        break;
+                    }
+                    case GridSquare::PLAYER_ONE:
+                    {
+                        DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, BLUE);
+                        break;
+                    }
+                    case GridSquare::PLAYER_TWO:
+                    {
+                        DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, RED);
+                        break;
+                    }
+                    case GridSquare::PLAYER_THREE:
+                    {
+                        DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, YELLOW);
+                        break;
+                    }
+                    case GridSquare::PLAYER_FOUR:
+                    {
+                        DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, GREEN);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
                 }
-                else if (ob.Get( Point(i, j) ) == GridSquare::BLOCK)
-                {
-                    // dont draw
-                    offset.x += BOARD_SQUARE_SIZE;
-                }
-                else
-                {
-                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, playerColor);
-                    offset.x += BOARD_SQUARE_SIZE;
-                }
+
+                offset.x += BOARD_SQUARE_SIZE;
             }
 
             offset.x = controller;
@@ -426,7 +522,18 @@ void GameScreen::DrawGame(void)
 
         DrawOverlayBoard();
 
-        DrawSelector();
+        std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+        std::shared_ptr<Player> player;
+        mPlayerManager.GetPlayer(uuid, player);
+
+        if( currentPlayersTurn == player->getPlayerId() )
+        {
+            DrawSelector();
+        }
+        else
+        {
+            DrawText("WAITING FOR NEXT TURN", screenWidth/2 - MeasureText("WAITING FOR NEXT TURN", 40)/2, screenHeight/2 - 40, 40, GRAY);
+        }
         
         if (pause)
         {
@@ -514,14 +621,8 @@ bool GameScreen::Show()
     sstream << uuid;
     sstream << " - ";
     std::shared_ptr<Player> player;
-    if( mPlayerManager.GetPlayer(uuid, player) )
-    {
-        sstream << PlayerIdString::PrintPlayerIdString(player->getPlayerId());
-    }
-    else
-    {
-        spdlog::get("console")->warn("GameScreen::Show() - Blah");
-    }
+    mPlayerManager.GetPlayer(uuid, player);
+    sstream << PlayerIdString::PrintPlayerIdString(player->getPlayerId());
     
     InitWindow(screenWidth, screenHeight, sstream.str().c_str());
 

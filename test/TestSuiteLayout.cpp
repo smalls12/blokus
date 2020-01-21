@@ -50,9 +50,9 @@ TEST_F(TestSuiteLayout, ComparisonCheckDefault)
 TEST_F(TestSuiteLayout, ComparisonCheckEqual1)
 {
 	Layout layout1;
-    layout1.Set( Point(2, 2), GridSquare::P1 );
+    layout1.Set( Point(2, 2), GridSquare::PLAYER_ONE );
     Layout layout2;
-    layout2.Set( Point(2, 2), GridSquare::P1 );
+    layout2.Set( Point(2, 2), GridSquare::PLAYER_ONE );
 
 	EXPECT_TRUE(layout1 == layout2);
 }
@@ -60,11 +60,11 @@ TEST_F(TestSuiteLayout, ComparisonCheckEqual1)
 TEST_F(TestSuiteLayout, ComparisonCheckEqual2)
 {
 	Layout layout1;
-    layout1.Set( Point(2, 2), GridSquare::P1 );
-    layout1.Set( Point(2, 3), GridSquare::P1 );
+    layout1.Set( Point(2, 2), GridSquare::PLAYER_ONE );
+    layout1.Set( Point(2, 3), GridSquare::PLAYER_ONE );
     Layout layout2;
-    layout2.Set( Point(2, 2), GridSquare::P1 );
-    layout2.Set( Point(2, 3), GridSquare::P1 );
+    layout2.Set( Point(2, 2), GridSquare::PLAYER_ONE );
+    layout2.Set( Point(2, 3), GridSquare::PLAYER_ONE );
 
 	EXPECT_TRUE(layout1 == layout2);
 }
@@ -72,7 +72,7 @@ TEST_F(TestSuiteLayout, ComparisonCheckEqual2)
 TEST_F(TestSuiteLayout, ComparisonCheckNotEqual1)
 {
 	Layout layout1;
-    layout1.Set( Point(2, 2), GridSquare::P1 );
+    layout1.Set( Point(2, 2), GridSquare::PLAYER_ONE );
     Layout layout2;
 
 	EXPECT_FALSE(layout1 == layout2);
@@ -81,11 +81,11 @@ TEST_F(TestSuiteLayout, ComparisonCheckNotEqual1)
 TEST_F(TestSuiteLayout, ComparisonCheckNotEqual2)
 {
 	Layout layout1;
-    layout1.Set( Point(1, 2), GridSquare::P1 );
-    layout1.Set( Point(2, 3), GridSquare::P1 );
+    layout1.Set( Point(1, 2), GridSquare::PLAYER_ONE );
+    layout1.Set( Point(2, 3), GridSquare::PLAYER_ONE );
     Layout layout2;
-    layout2.Set( Point(2, 2), GridSquare::P1 );
-    layout2.Set( Point(2, 3), GridSquare::P1 );
+    layout2.Set( Point(2, 2), GridSquare::PLAYER_ONE );
+    layout2.Set( Point(2, 3), GridSquare::PLAYER_ONE );
 
 	EXPECT_FALSE(layout1 == layout2);
 }

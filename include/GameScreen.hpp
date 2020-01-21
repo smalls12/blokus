@@ -5,6 +5,7 @@
 #include "ReadGameNotification.hpp"
 #include "PlayerManager.hpp"
 #include "ProcessPlayerMove.hpp"
+#include "GameFlowManager.hpp"
 
 #include "IPlayerMoveRequestData.hpp"
 
@@ -19,7 +20,8 @@ class GameScreen
                     MessageProcessor& messageProcessor,
                     ReadGameNotification& readGameNotification,
                     PlayerManager& playerManager,
-                    ProcessPlayerMove& processPlayerMove   );
+                    ProcessPlayerMove& processPlayerMove,
+                    GameFlowManager& gameFlowManager   );
         ~GameScreen();
 
         bool ProcessRemotePlayerMove(IPlayerMoveRequestData& data);
@@ -31,6 +33,7 @@ class GameScreen
         ReadGameNotification&       mReadGameNotification;
         PlayerManager&              mPlayerManager;
         ProcessPlayerMove&          mProcessPlayerMove;
+        GameFlowManager&            mGameFlowManager;
 
     private:
         // private methods

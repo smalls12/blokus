@@ -22,24 +22,29 @@ class GridSquareString
                     sstream << "BLOCK";
                     break;
                 }
-                case GridSquare::P1:
+                case GridSquare::PLAYER_ONE:
                 {
-                    sstream << "P1";
+                    sstream << "PLAYER_ONE";
                     break;
                 }
-                case GridSquare::P2:
+                case GridSquare::PLAYER_TWO:
                 {
-                    sstream << "P2";
+                    sstream << "PLAYER_TWO";
                     break;
                 }
-                case GridSquare::P3:
+                case GridSquare::PLAYER_THREE:
                 {
-                    sstream << "P3";
+                    sstream << "PLAYER_THREE";
                     break;
                 }
-                case GridSquare::P4:
+                case GridSquare::PLAYER_FOUR:
                 {
-                    sstream << "P4";
+                    sstream << "PLAYER_FOUR";
+                    break;
+                }
+                default:
+                {
+                    sstream << "UNKNOWN";
                     break;
                 }
             }

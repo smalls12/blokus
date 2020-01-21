@@ -53,12 +53,12 @@ TEST_F(TestSuiteMoveablePiece, TestLayout)
 TEST_F(TestSuiteMoveablePiece, TestLayoutExplicitObject)
 {
 	Layout layout;
-	layout.Set( Point(2, 2), GridSquare::P1 );
+	layout.Set( Point(2, 2), GridSquare::PLAYER_ONE );
 	Piece piece(layout);
     MoveablePiece moveablePiece(piece);
 
 	Layout layout_test;
-	layout_test.Set( Point(2, 2), GridSquare::P1 );
+	layout_test.Set( Point(2, 2), GridSquare::PLAYER_ONE );
 	EXPECT_TRUE(layout_test == moveablePiece.GetLayout());
 }
 
@@ -75,7 +75,7 @@ TEST_F(TestSuiteMoveablePiece, TestPadding)
 TEST_F(TestSuiteMoveablePiece, CopyPieceIntoMoveablePiece)
 {
 	Layout layout;
-	layout.Set( Point(2, 2), GridSquare::P1 );
+	layout.Set( Point(2, 2), GridSquare::PLAYER_ONE );
 	Piece piece(layout);
     MoveablePiece moveablePiece(piece);
 

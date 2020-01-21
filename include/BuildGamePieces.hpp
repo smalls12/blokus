@@ -21,7 +21,7 @@ class BuildGamePieces
         // a map of pieces
         //  key is the type of piece
         //  value is piece itself
-        static std::map<PieceType, Piece> Build();
+        static std::map<PieceType, Piece> Build(GridSquare gridSquare);
 
     private:
         BuildGamePieces();

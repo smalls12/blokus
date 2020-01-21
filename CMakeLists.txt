@@ -66,6 +66,7 @@ set ( src_blokus
       src/PlayerMoveRequestData.cpp
       src/ProcessPlayerMove.cpp
       src/RandomizePlayerIds.cpp
+      src/GameFlowManager.cpp
       src/main.cpp
 )
 
@@ -112,6 +113,8 @@ set ( src_blokus_test
       src/GameNotification.cpp
       src/ReadGameNotification.cpp
       src/PieceSelector.cpp
+      src/Game.cpp
+      src/GameFlowManager.cpp
       test/TestSuiteSetup.cpp
       test/TestSuiteCalculatePadding.cpp
       test/TestSuitePieceSelector.cpp
@@ -121,6 +124,7 @@ set ( src_blokus_test
       test/TestSuiteMoveablePiece.cpp
       test/TestSuiteLayout.cpp
       test/TestSuitePadding.cpp
+      test/TestSuiteGameFlowManager.cpp
 )
 
 add_executable( test_blokus ${src_blokus_test} )
