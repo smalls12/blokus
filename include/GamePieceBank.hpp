@@ -10,7 +10,7 @@
 
 #include "PlayerId.hpp"
 #include "PieceType.hpp"
-#include "Piece.hpp"
+#include "MoveablePiece.hpp"
 
 #include <map>
 
@@ -20,8 +20,12 @@ class GamePieceBank
         GamePieceBank();
         ~GamePieceBank();
 
-        Piece GetPlayerPiece(PlayerId id, PieceType type);
+        // using a raw pointer here
+        // a smart pointer would assume ownership
+        // and remove the data once the reference counter hit 0
+        // the smart pointer does not own this data
+        MoveablePiece* GetPlayerPiece(const PlayerId id, PieceType type);
 
     private:
-        std::map<PlayerId, std::map<PieceType, Piece>>   mGamePieces;
+        std::map<PlayerId, std::map<PieceType, MoveablePiece>>   mGamePieces;
 };

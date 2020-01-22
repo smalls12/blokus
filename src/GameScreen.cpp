@@ -71,15 +71,17 @@ GameScreen::GameScreen(IGameSettings& settings,
     mGamePieceBank(),
     mPieceSelector(),
     mSelectedPieceType(mPieceSelector.GetNextPiece()),
-    mSelectedPiece(mGamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, mSelectedPieceType))
+    //mSelectedPiece(nullptr)
+    mPlayerSelectedPiece(nullptr)
 {
-    spdlog::get("console")->info("GameScreen = ::GameScreen() - Start");
+    spdlog::get("console")->info("GameScreen::GameScreen() - Start");
 
     std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
     std::shared_ptr<Player> player;
     mPlayerManager.GetPlayer(uuid, player);
 
-    mSelectedPiece = mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType);
+    // mSelectedPiece = mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType);
+    mPlayerSelectedPiece = PlayerSelectedPiece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType));
 }
 
 GameScreen::~GameScreen()
@@ -134,11 +136,9 @@ bool GameScreen::ProcessPlayerMoveInternal()
     spdlog::get("console")->info("GameScreen::ProcessPlayerMoveInternal() - Start");
 
     Point PlayerMoveLocation( PiecePositionX, PiecePositionY );
-    if ( ValidateMove::ValidatePlayerMove( gb, mSelectedPiece, PlayerMoveLocation ) )
+    if ( ValidateMove::ValidatePlayerMove( gb, *mPlayerSelectedPiece.GetPiece(), PlayerMoveLocation ) )
     {
-        spdlog::get("console")->info("GameScreen::ProcessPlayerMoveInternal() - Valid Move");
-
-        AddPiece::AddPieceToBoard( gb, mSelectedPiece, PlayerMoveLocation );
+        AddPiece::AddPieceToBoard( gb, *mPlayerSelectedPiece.GetPiece(), PlayerMoveLocation );
 
         std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
         std::shared_ptr<Player> player;
@@ -155,8 +155,6 @@ bool GameScreen::ProcessPlayerMoveInternal()
     }
     else
     {
-        spdlog::get("console")->info("GameScreen::ProcessPlayerMoveInternal() - Invalid Move");
-
         return false;
     }
 }
@@ -165,7 +163,7 @@ bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
 {
     spdlog::get("console")->info("GameScreen::ProcessRemotePlayerMove() - Start");
 
-    AddPiece::AddPieceToBoard( gb, mGamePieceBank.GetPlayerPiece(data.GetPlayerId(), data.GetPieceType()), data.GetLocation() );
+    AddPiece::AddPieceToBoard( gb, *mGamePieceBank.GetPlayerPiece(data.GetPlayerId(), data.GetPieceType()), data.GetLocation() );
 
     // advance to next player
     currentPlayersTurn = mGameFlowManager.NextPlayersTurn();
@@ -198,49 +196,49 @@ void GameScreen::UpdateGame(void)
 
                 if ( IsKeyPressed(KEY_LEFT) )
                 {
-                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), mSelectedPiece, MovementDirection::LEFT ) )
+                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), *mPlayerSelectedPiece.GetPiece(), MovementDirection::LEFT ) )
                     {
                         ClearBoard::EmptyBoard( ob );
 
                         PiecePositionY--;
 
-                        AddPiece::AddPieceToBoard( ob, mSelectedPiece, Point( PiecePositionX, PiecePositionY ) );
+                        AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
                     }
                 }
 
                 if ( IsKeyPressed(KEY_RIGHT) )
                 {
-                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), mSelectedPiece, MovementDirection::RIGHT ) )
+                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), *mPlayerSelectedPiece.GetPiece(), MovementDirection::RIGHT ) )
                     {
                         ClearBoard::EmptyBoard( ob );
 
                         PiecePositionY++;
 
-                        AddPiece::AddPieceToBoard( ob, mSelectedPiece, Point( PiecePositionX, PiecePositionY ) );
+                        AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
                     }
                 }
 
                 if ( IsKeyPressed(KEY_UP) )
                 {
-                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), mSelectedPiece, MovementDirection::UP ) )
+                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), *mPlayerSelectedPiece.GetPiece(), MovementDirection::UP ) )
                     {
                         ClearBoard::EmptyBoard( ob );
 
                         PiecePositionX--;
 
-                        AddPiece::AddPieceToBoard( ob, mSelectedPiece, Point( PiecePositionX, PiecePositionY ) );
+                        AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
                     }
                 }
 
                 if ( IsKeyPressed(KEY_DOWN) )
                 {
-                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), mSelectedPiece, MovementDirection::DOWN ) )
+                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), *mPlayerSelectedPiece.GetPiece(), MovementDirection::DOWN ) )
                     {
                         ClearBoard::EmptyBoard( ob );
 
                         PiecePositionX++;
 
-                        AddPiece::AddPieceToBoard( ob, mSelectedPiece, Point( PiecePositionX, PiecePositionY ) );
+                        AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
                     }
                 }
 
@@ -248,6 +246,9 @@ void GameScreen::UpdateGame(void)
                 {
                     if ( ProcessPlayerMoveInternal() )
                     {
+                        // piece has been played, make piece unavailable to be played again
+                        mPlayerSelectedPiece.GetPiece()->PiecePlayed();
+
                         // advance to next player
                         currentPlayersTurn = mGameFlowManager.NextPlayersTurn();
 
@@ -259,7 +260,15 @@ void GameScreen::UpdateGame(void)
             {
                 if ( IsKeyPressed(KEY_SPACE) )
                 {
-                    mSelectedPieceType = mPieceSelector.GetNextPiece();
+                    std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+                    std::shared_ptr<Player> player;
+                    mPlayerManager.GetPlayer(uuid, player);
+
+                    do
+                    {
+                        mSelectedPieceType = mPieceSelector.GetNextPiece();
+                    }
+                    while( mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType)->HasPieceBeenPlayed() );
 
                     spdlog::get("console")->info("GameScreen::UpdateGame() - {} Piece Selected", PieceTypeString::PrintPieceTypeString(mSelectedPieceType));
                 }
@@ -273,13 +282,10 @@ void GameScreen::UpdateGame(void)
                     std::shared_ptr<Player> player;
                     mPlayerManager.GetPlayer(uuid, player);
 
-                    mSelectedPiece = MoveablePiece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType));
-                    mSelectedPiece.SetLocation(Point( screenWidth / 2 - BOARD_SQUARE_SIZE * 2, screenHeight / 2 - BOARD_SQUARE_SIZE * 2 ));
+                    mPlayerSelectedPiece = PlayerSelectedPiece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType));
+                    mPlayerSelectedPiece.GetPiece()->SetLocation(Point( screenWidth / 2 - BOARD_SQUARE_SIZE * 2, screenHeight / 2 - BOARD_SQUARE_SIZE * 2 ));
 
-                    std::stringstream sstream;
-                    sstream << mSelectedPiece;
-                    spdlog::get("console")->info("GameScreen::UpdateGame() - {0} Piece Selected {}", PieceTypeString::PrintPieceTypeString(mSelectedPieceType), sstream.str());
-                    AddPiece::AddPieceToBoard( ob, mSelectedPiece, Point( PiecePositionX, PiecePositionY ) );
+                    AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
 
                     selected = true;
                 }
@@ -372,23 +378,31 @@ void GameScreen::DrawGamePieces()
 
         int controller = pieceOffset.x;
 
+        std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+        std::shared_ptr<Player> player;
+        mPlayerManager.GetPlayer(uuid, player);
+
+        PlayerSelectedPiece piece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), it->first));
+
         for (int i = 0; i < 5; i++)
         {
             for (int j = 0; j < 5; j++)
             {
-                std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
-                std::shared_ptr<Player> player;
-                mPlayerManager.GetPlayer(uuid, player);
-
-                Piece piece = mGamePieceBank.GetPlayerPiece(player->getPlayerId(), it->first);
-                switch( piece.GetLayout().Get(i, j) )
+                switch( piece.GetPiece()->GetLayout().Get(i, j) )
                 {
                     case GridSquare::EMPTY:
                     {
-                        DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, LIGHTGRAY );
-                        DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
-                        DrawLine(pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
-                        DrawLine(pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
+                        if( piece.GetPiece()->HasPieceBeenPlayed() )
+                        {
+                            DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, BLACK);
+                        }
+                        else
+                        {
+                            DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, LIGHTGRAY );
+                            DrawLine(pieceOffset.x, pieceOffset.y, pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
+                            DrawLine(pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
+                            DrawLine(pieceOffset.x, pieceOffset.y + PIECE_SQUARE_SIZE, pieceOffset.x + PIECE_SQUARE_SIZE, pieceOffset.y + PIECE_SQUARE_SIZE, LIGHTGRAY );
+                        }
                         break;
                     }
                     case GridSquare::BLOCK:

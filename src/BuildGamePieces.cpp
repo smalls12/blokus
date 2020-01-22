@@ -2,7 +2,7 @@
 
 #include "CalculatePadding.hpp"
 
-std::map<PieceType, Piece> BuildGamePieces::Build(GridSquare gridSquare)
+std::map<PieceType, MoveablePiece> BuildGamePieces::Build(GridSquare gridSquare)
 {
     Layout BlokusPiece1;
     BlokusPiece1.Set( Point(2, 2), gridSquare );
@@ -135,28 +135,28 @@ std::map<PieceType, Piece> BuildGamePieces::Build(GridSquare gridSquare)
                  .Set( Point(3, 3), gridSquare )
                  .Set( Point(3, 4), gridSquare );
 
-    std::map<PieceType, Piece> pieces = {
-        { PieceType::I1, Piece( BlokusPiece1 ) },
-        { PieceType::I2, Piece( BlokusPiece2 ) },
-        { PieceType::V3, Piece( BlokusPiece3 ) },
-        { PieceType::I3, Piece( BlokusPiece4 ) },
-        { PieceType::O, Piece( BlokusPiece5 ) },
-        { PieceType::T4, Piece( BlokusPiece6 ) },
-        { PieceType::I4, Piece( BlokusPiece7 ) },
-        { PieceType::L4, Piece( BlokusPiece8 ) },
-        { PieceType::Z4, Piece( BlokusPiece9 ) },
-        { PieceType::L5, Piece( BlokusPiece10 ) },
-        { PieceType::T5, Piece( BlokusPiece11 ) },
-        { PieceType::V5, Piece( BlokusPiece12 ) },
-        { PieceType::N, Piece( BlokusPiece13 ) },
-        { PieceType::Z5, Piece( BlokusPiece14 ) },
-        { PieceType::I5, Piece( BlokusPiece15 ) },
-        { PieceType::P, Piece( BlokusPiece16 ) },
-        { PieceType::W, Piece( BlokusPiece17 ) },
-        { PieceType::F, Piece( BlokusPiece18 ) },
-        { PieceType::X, Piece( BlokusPiece19 ) },
-        { PieceType::U, Piece( BlokusPiece20 ) },
-        { PieceType::Y, Piece( BlokusPiece21 ) }
+    std::map<PieceType, MoveablePiece> pieces = {
+        { PieceType::I1, MoveablePiece( Piece( BlokusPiece1 ) ) },
+        { PieceType::I2, MoveablePiece( Piece( BlokusPiece2 ) ) },
+        { PieceType::V3, MoveablePiece( Piece( BlokusPiece3 ) ) },
+        { PieceType::I3, MoveablePiece( Piece( BlokusPiece4 ) ) },
+        { PieceType::O, MoveablePiece( Piece( BlokusPiece5 ) ) },
+        { PieceType::T4, MoveablePiece( Piece( BlokusPiece6 ) ) },
+        { PieceType::I4, MoveablePiece( Piece( BlokusPiece7 ) ) },
+        { PieceType::L4, MoveablePiece( Piece( BlokusPiece8 ) ) },
+        { PieceType::Z4, MoveablePiece( Piece( BlokusPiece9 ) ) },
+        { PieceType::L5, MoveablePiece( Piece( BlokusPiece10 ) ) },
+        { PieceType::T5, MoveablePiece( Piece( BlokusPiece11 ) ) },
+        { PieceType::V5, MoveablePiece( Piece( BlokusPiece12 ) ) },
+        { PieceType::N, MoveablePiece( Piece( BlokusPiece13 ) ) },
+        { PieceType::Z5, MoveablePiece( Piece( BlokusPiece14 ) ) },
+        { PieceType::I5, MoveablePiece( Piece( BlokusPiece15 ) ) },
+        { PieceType::P, MoveablePiece( Piece( BlokusPiece16 ) ) },
+        { PieceType::W, MoveablePiece( Piece( BlokusPiece17 ) ) },
+        { PieceType::F, MoveablePiece( Piece( BlokusPiece18 ) ) },
+        { PieceType::X, MoveablePiece( Piece( BlokusPiece19 ) ) },
+        { PieceType::U, MoveablePiece( Piece( BlokusPiece20 ) ) },
+        { PieceType::Y, MoveablePiece( Piece( BlokusPiece21 ) ) }
     };
 
     return pieces;

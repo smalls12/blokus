@@ -4,7 +4,7 @@
 
 GamePieceBank::GamePieceBank()
 {
-    mGamePieces = std::map<PlayerId, std::map<PieceType, Piece>> {
+    mGamePieces = std::map<PlayerId, std::map<PieceType, MoveablePiece>> {
         { PlayerId::PLAYER_ONE, BuildGamePieces::Build(GridSquare::PLAYER_ONE) },
         { PlayerId::PLAYER_TWO, BuildGamePieces::Build(GridSquare::PLAYER_TWO) },
         { PlayerId::PLAYER_THREE, BuildGamePieces::Build(GridSquare::PLAYER_THREE) },
@@ -17,7 +17,7 @@ GamePieceBank::~GamePieceBank()
 
 }
 
-Piece GamePieceBank::GetPlayerPiece(PlayerId id, PieceType type)
+MoveablePiece* GamePieceBank::GetPlayerPiece(const PlayerId id, const PieceType type)
 {
-    return mGamePieces.at(id).at(type);
+    return &mGamePieces.at(id).at(type);
 }

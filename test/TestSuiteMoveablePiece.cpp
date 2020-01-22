@@ -84,4 +84,16 @@ TEST_F(TestSuiteMoveablePiece, CopyPieceIntoMoveablePiece)
 	EXPECT_TRUE(padding == moveablePiece.GetPadding());
 }
 
+TEST_F(TestSuiteMoveablePiece, SetPlayed)
+{
+	Layout layout;
+	layout.Set( Point(2, 2), GridSquare::PLAYER_ONE );
+	Piece piece(layout);
+    MoveablePiece moveablePiece(piece);
+
+	EXPECT_FALSE(moveablePiece.HasPieceBeenPlayed());
+	moveablePiece.PiecePlayed();
+	EXPECT_TRUE(moveablePiece.HasPieceBeenPlayed());
+}
+
 // }  // namespace - could surround Project1Test in a namespace

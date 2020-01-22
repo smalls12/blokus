@@ -44,6 +44,7 @@ set ( src_blokus
       src/PlayerManager.cpp
       src/Player.cpp
       src/PieceMove.cpp
+      src/PlayerSelectedPiece.cpp
       src/BuildGamePieces.cpp
       src/PiecesAvailableForPlayLocations.cpp
       src/PieceSelector.cpp
@@ -115,6 +116,8 @@ set ( src_blokus_test
       src/PieceSelector.cpp
       src/Game.cpp
       src/GameFlowManager.cpp
+      src/BuildGamePieces.cpp
+      src/GamePieceBank.cpp
       test/TestSuiteSetup.cpp
       test/TestSuiteCalculatePadding.cpp
       test/TestSuitePieceSelector.cpp
@@ -125,6 +128,7 @@ set ( src_blokus_test
       test/TestSuiteLayout.cpp
       test/TestSuitePadding.cpp
       test/TestSuiteGameFlowManager.cpp
+      test/TestSuiteGamePieceBank.cpp
 )
 
 add_executable( test_blokus ${src_blokus_test} )

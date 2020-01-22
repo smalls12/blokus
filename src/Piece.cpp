@@ -7,7 +7,6 @@
 Piece::Piece(Layout layout)
 :   mLayout(layout),
     mPadding(CalculatePadding::CalculatePaddingFromLayout(mLayout))
-    
 {
     // spdlog::get("console")->info("Piece::Piece()");
 }
@@ -22,7 +21,6 @@ Piece::Piece(Layout layout, Padding padding)
 Piece::~Piece()
 {
     // spdlog::get("console")->info("Piece::Piece()");
-
 }
 
 std::ostream& operator <<(std::ostream& outputStream, const Piece& p)

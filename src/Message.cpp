@@ -328,7 +328,7 @@ bool Message::ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequ
     
     spdlog::get("console")->debug("Message::ParseStartGameRequestMessage() - {}", in.DebugString());
 
-    PlayerId id = PlayerId::PLAYER_ONE;;
+    PlayerId id = PlayerId::UNASSIGNED;;
     switch(in.request().player_move_req().id())
     {
         case blokus::PlayerID::BLOKUS_PLAYER_ONE:

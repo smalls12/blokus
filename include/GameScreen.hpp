@@ -11,7 +11,7 @@
 
 #include "GamePieceBank.hpp"
 #include "PieceSelector.hpp"
-#include "MoveablePiece.hpp"
+#include "PlayerSelectedPiece.hpp"
 
 class GameScreen
 {
@@ -51,8 +51,8 @@ class GameScreen
         void UnloadGame();
 
         // private variables
-        GamePieceBank       mGamePieceBank;
-        PieceSelector       mPieceSelector;
-        PieceType           mSelectedPieceType;
-        MoveablePiece       mSelectedPiece;
+        GamePieceBank           mGamePieceBank;
+        PieceSelector           mPieceSelector;
+        PieceType               mSelectedPieceType;
+        PlayerSelectedPiece     mPlayerSelectedPiece;
 };

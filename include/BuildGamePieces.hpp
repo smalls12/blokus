@@ -11,7 +11,7 @@
  * ========================================================= */
 
 #include "PieceType.hpp"
-#include "Piece.hpp"
+#include "MoveablePiece.hpp"
 
 #include <map>
 
@@ -21,7 +21,7 @@ class BuildGamePieces
         // a map of pieces
         //  key is the type of piece
         //  value is piece itself
-        static std::map<PieceType, Piece> Build(GridSquare gridSquare);
+        static std::map<PieceType, MoveablePiece> Build(GridSquare gridSquare);
 
     private:
         BuildGamePieces();

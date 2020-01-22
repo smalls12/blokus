@@ -3,7 +3,7 @@
 #include "spdlog/spdlog.h"
 
 PlayerMoveRequestData::PlayerMoveRequestData()
-:   mPlayerId(PlayerId::PLAYER_ONE)
+:   mPlayerId(PlayerId::UNASSIGNED)
 {
     spdlog::get("console")->debug("PlayerMoveRequestData::PlayerMoveRequestData()");
 }

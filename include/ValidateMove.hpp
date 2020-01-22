@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Board.hpp"
-#include "Piece.hpp"
+#include "MoveablePiece.hpp"
 #include "Point.hpp"
 
 class ValidateMove
@@ -9,7 +9,7 @@ class ValidateMove
     public:
         // NOTE
         // Might only need layout instead of Piece
-        inline static bool ValidatePlayerMove(Board board, Piece piece, Point point)
+        inline static bool ValidatePlayerMove(Board board, MoveablePiece& piece, Point point)
         {
             // see if any squares are already taken
             for (int i = 0; i < 5; i++)

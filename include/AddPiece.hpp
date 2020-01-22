@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Board.hpp"
-#include "Piece.hpp"
+#include "MoveablePiece.hpp"
 #include "Point.hpp"
 
 #include "GridSquareString.hpp"
@@ -11,7 +11,7 @@ class AddPiece
     public:
         // NOTE
         // Might only need layout instead of Piece
-        inline static void AddPieceToBoard(Board& board, Piece piece, Point point)
+        inline static void AddPieceToBoard(Board& board, MoveablePiece& piece, Point point)
         {
             // y-axis
             for (int i = 0; i < 5; i++)

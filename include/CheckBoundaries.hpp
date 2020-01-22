@@ -10,7 +10,7 @@ class CheckBoundaries
     public:
         // NOTE
         // Might only need layout instead of Piece
-        inline static bool CheckGameBoardBoundary(Point CurrentLocation, Piece piece, MovementDirection direction)
+        inline static bool CheckGameBoardBoundary(Point CurrentLocation, MoveablePiece& piece, MovementDirection direction)
         {
             // the calculation here is take the current location
             // ( x, y )

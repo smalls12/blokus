@@ -35,7 +35,7 @@ class Piece
         // represents the available space inside the layout
         Layout      mLayout;
         Padding     mPadding;
-
+        
     private:
 
 };
