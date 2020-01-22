@@ -19,8 +19,26 @@ class AddPiece
                 // x-axis
                 for (int j = 0; j < 5; j++)
                 {
-                    // std::cout << "(i, j) : (" << i << ", " << j << ") : (" << GridSquareString::PrintGridSquareString(piece.GetLayout().Get(i, j)) << ")" << std::endl; 
-                    board.Set( Point(point.GetX() + i, point.GetY() + j), piece.GetLayout().Get(i, j) );
+                    switch( piece.GetLayout().Get(i, j) )
+                    {
+                        case GridSquare::EMPTY:
+                        case GridSquare::BLOCK:
+                        {
+                            break;
+                        }
+                        case GridSquare::PLAYER_ONE:
+                        case GridSquare::PLAYER_TWO:
+                        case GridSquare::PLAYER_THREE:
+                        case GridSquare::PLAYER_FOUR:
+                        {
+                            board.Set( Point(point.GetX() + i, point.GetY() + j), piece.GetLayout().Get(i, j) );
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
                 }
             }
         }
