@@ -19,9 +19,10 @@
 class Piece
 {
     public:
-        ~Piece();
+        Piece();
         Piece(Layout layout);
         Piece(Layout layout, Padding padding);
+        ~Piece();
     
         void SetLayout(Layout layout) { mLayout = layout ;}
         Layout GetLayout() { return mLayout; }

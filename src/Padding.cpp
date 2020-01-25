@@ -18,22 +18,22 @@ Padding::Padding(int left, int top, int right, int bottom)
 
 }
 
-int Padding::GetLeft()
+int Padding::GetLeft() const
 {
     return mLeft;
 }
 
-int Padding::GetTop()
+int Padding::GetTop() const
 {
     return mTop;
 }
 
-int Padding::GetRight()
+int Padding::GetRight() const
 {
     return mRight;
 }
 
-int Padding::GetBottom()
+int Padding::GetBottom() const
 {
     return mBottom;
 }

@@ -6,13 +6,22 @@
 
 #include "GridSquareString.hpp"
 
+#include "spdlog/spdlog.h"
+
 class AddPiece
 {
     public:
         // NOTE
         // Might only need layout instead of Piece
-        inline static void AddPieceToBoard(Board& board, MoveablePiece& piece, Point point)
+        inline static void AddPieceToBoard(Board& board, Piece& piece, Point point)
         {
+            std::stringstream pieceString;
+            pieceString << piece;
+
+            std::stringstream locationString;
+            locationString << point;
+            spdlog::get("console")->trace("OverlayBoard::SetSelectedGamePiece() - Add piece {} to location {}", pieceString.str(), locationString.str());
+
             // y-axis
             for (int i = 0; i < 5; i++)
             {

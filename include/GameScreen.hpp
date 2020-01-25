@@ -41,9 +41,7 @@ class GameScreen
         void InitGame();
         bool ProcessPlayerMoveInternal();
         void UpdateGame();
-        void DrawBoard();
         void DrawGamePieces();
-        void DrawOverlayBoard();
         void DrawSelector();
         void DrawGame();
         void CheckForNotification();

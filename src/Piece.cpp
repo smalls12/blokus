@@ -4,6 +4,13 @@
 
 #include "spdlog/spdlog.h"
 
+Piece::Piece()
+:   mLayout(),
+    mPadding(CalculatePadding::CalculatePaddingFromLayout(mLayout))
+{
+    // spdlog::get("console")->info("Piece::Piece()");
+}
+
 Piece::Piece(Layout layout)
 :   mLayout(layout),
     mPadding(CalculatePadding::CalculatePaddingFromLayout(mLayout))

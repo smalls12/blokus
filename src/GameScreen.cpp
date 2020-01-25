@@ -1,3 +1,9 @@
+#define BOARD_SQUARE_SIZE       20
+#define PIECE_SQUARE_SIZE       10
+
+#define GRID_HORIZONTAL_SIZE    20
+#define GRID_VERTICAL_SIZE      20
+
 #include "ValidateMove.hpp"
 
 #include "GridSquare.hpp"
@@ -9,6 +15,7 @@
 
 #include "AddPiece.hpp"
 #include "ClearBoard.hpp"
+#include "MergeBoards.hpp"
 
 #include "CheckBoundaries.hpp"
 
@@ -29,12 +36,6 @@ extern "C" {
 #include "raylib.h"
 }
 
-#define BOARD_SQUARE_SIZE       20
-#define PIECE_SQUARE_SIZE       10
-
-#define GRID_HORIZONTAL_SIZE    20
-#define GRID_VERTICAL_SIZE      20
-
 namespace
 {
     static const int screenWidth = 600;
@@ -44,17 +45,18 @@ namespace
     static bool pause = false;
 
     GameBoard gb;
-    OverlayBoard ob;
+    OverlayBoard overlayBoard;
 
     static bool selected = false;
-
-    static int PiecePositionX = 0;
-    static int PiecePositionY = 0;
+    static Point selectedPieceLocation = Point(0,0);
 
     static bool beginPlay = true;
 
     static PlayerId currentPlayersTurn = PlayerId::PLAYER_ONE;
 }
+
+#include "DrawBoard.hpp"
+#include "DrawPiecesOnBoard.hpp"
 
 GameScreen::GameScreen(IGameSettings& settings,
                        MessageProcessor& messageProcessor,
@@ -92,53 +94,21 @@ GameScreen::~GameScreen()
 // Initialize game variables
 void GameScreen::InitGame(void)
 {
-    PiecePositionX = 0;
-    PiecePositionY = 0;
-
     pause = false;
 
     beginPlay = true;
 
-    // Initialize grid matrices
-    for (int i = 0; i < GRID_HORIZONTAL_SIZE; i++)
-    {
-        for (int j = 0; j < GRID_VERTICAL_SIZE; j++)
-        {
-            if ((j == GRID_VERTICAL_SIZE - 1) || (i == 0) || (i == GRID_HORIZONTAL_SIZE - 1) || (j == 0))
-            {
-                gb.Set( Point(i, j), GridSquare::BLOCK );
-            }
-            else
-            {
-                gb.Set( Point(i, j), GridSquare::EMPTY );
-            }
-        }
-    }
-
-    for (int i = 0; i < GRID_HORIZONTAL_SIZE; i++)
-    {
-        for (int j = 0; j < GRID_VERTICAL_SIZE; j++)
-        {
-            if ((j == GRID_VERTICAL_SIZE - 1) || (i == 0) || (i == GRID_HORIZONTAL_SIZE - 1) || (j == 0))
-            {
-                ob.Set( Point(i, j), GridSquare::BLOCK );
-            }
-            else
-            {
-                ob.Set( Point(i, j), GridSquare::EMPTY );
-            }
-        }
-    }
+    ClearBoard::EmptyBoard( gb );
+    ClearBoard::EmptyBoard( overlayBoard );
 }
 
 bool GameScreen::ProcessPlayerMoveInternal()
 {
     spdlog::get("console")->info("GameScreen::ProcessPlayerMoveInternal() - Start");
 
-    Point PlayerMoveLocation( PiecePositionX, PiecePositionY );
-    if ( ValidateMove::ValidatePlayerMove( gb, *mPlayerSelectedPiece.GetPiece(), PlayerMoveLocation ) )
+    if ( ValidateMove::Validate( gb, overlayBoard ) )
     {
-        AddPiece::AddPieceToBoard( gb, *mPlayerSelectedPiece.GetPiece(), PlayerMoveLocation );
+        MergeBoards::Merge(gb, overlayBoard);
 
         std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
         std::shared_ptr<Player> player;
@@ -147,7 +117,7 @@ bool GameScreen::ProcessPlayerMoveInternal()
         PlayerMoveRequestData playerMoveRequestData;
         playerMoveRequestData.SetPlayerId(player->getPlayerId());
         playerMoveRequestData.SetPieceType(mSelectedPieceType);
-        playerMoveRequestData.SetLocation(PlayerMoveLocation);
+        playerMoveRequestData.SetLocation(selectedPieceLocation);
 
         mProcessPlayerMove.Process(playerMoveRequestData);
 
@@ -155,6 +125,7 @@ bool GameScreen::ProcessPlayerMoveInternal()
     }
     else
     {
+        spdlog::get("console")->error("GameScreen::ProcessPlayerMoveInternal() - Invalid location.");
         return false;
     }
 }
@@ -196,50 +167,22 @@ void GameScreen::UpdateGame(void)
 
                 if ( IsKeyPressed(KEY_LEFT) )
                 {
-                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), *mPlayerSelectedPiece.GetPiece(), MovementDirection::LEFT ) )
-                    {
-                        ClearBoard::EmptyBoard( ob );
-
-                        PiecePositionY--;
-
-                        AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
-                    }
+                    selectedPieceLocation = overlayBoard.MovePiece(MovementDirection::LEFT);
                 }
 
                 if ( IsKeyPressed(KEY_RIGHT) )
                 {
-                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), *mPlayerSelectedPiece.GetPiece(), MovementDirection::RIGHT ) )
-                    {
-                        ClearBoard::EmptyBoard( ob );
-
-                        PiecePositionY++;
-
-                        AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
-                    }
+                    selectedPieceLocation = overlayBoard.MovePiece(MovementDirection::RIGHT);
                 }
 
                 if ( IsKeyPressed(KEY_UP) )
                 {
-                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), *mPlayerSelectedPiece.GetPiece(), MovementDirection::UP ) )
-                    {
-                        ClearBoard::EmptyBoard( ob );
-
-                        PiecePositionX--;
-
-                        AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
-                    }
+                    selectedPieceLocation =overlayBoard.MovePiece(MovementDirection::UP);
                 }
 
                 if ( IsKeyPressed(KEY_DOWN) )
                 {
-                    if ( CheckBoundaries::CheckGameBoardBoundary( Point( PiecePositionX, PiecePositionY ), *mPlayerSelectedPiece.GetPiece(), MovementDirection::DOWN ) )
-                    {
-                        ClearBoard::EmptyBoard( ob );
-
-                        PiecePositionX++;
-
-                        AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
-                    }
+                    selectedPieceLocation = overlayBoard.MovePiece(MovementDirection::DOWN);
                 }
 
                 if ( IsKeyPressed(KEY_ENTER) )
@@ -275,17 +218,13 @@ void GameScreen::UpdateGame(void)
 
                 if ( IsKeyPressed(KEY_ENTER) )
                 {
-                    PiecePositionX = 8;
-                    PiecePositionY = 8;
-
                     std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
                     std::shared_ptr<Player> player;
                     mPlayerManager.GetPlayer(uuid, player);
 
                     mPlayerSelectedPiece = PlayerSelectedPiece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType));
-                    mPlayerSelectedPiece.GetPiece()->SetLocation(Point( screenWidth / 2 - BOARD_SQUARE_SIZE * 2, screenHeight / 2 - BOARD_SQUARE_SIZE * 2 ));
-
-                    AddPiece::AddPieceToBoard( ob, *mPlayerSelectedPiece.GetPiece(), Point( PiecePositionX, PiecePositionY ) );
+                    
+                    overlayBoard.SetSelectedGamePiece( Piece( mPlayerSelectedPiece.GetPiece()->GetLayout() ) );
 
                     selected = true;
                 }
@@ -299,70 +238,6 @@ void GameScreen::UpdateGame(void)
             InitGame();
             gameOver = false;
         }
-    }
-}
-
-void GameScreen::DrawBoard()
-{
-    // Draw gameplay area
-    Vector2 offset;
-    
-    offset.x = screenWidth / 2 - (( BOARD_SQUARE_SIZE * 20 ) / 2);
-    offset.y = screenHeight / 2 - (( BOARD_SQUARE_SIZE * 20 ) / 2);
-
-    int controller = offset.x;
-
-    for (int i = 0; i < GRID_VERTICAL_SIZE; i++)
-    {
-        for (int j = 0; j < GRID_HORIZONTAL_SIZE; j++)
-        {
-            // Draw each square of the grid
-            switch( gb.Get(Point(i, j)) )
-            {
-                case GridSquare::EMPTY:
-                {
-                    DrawLine(offset.x, offset.y, offset.x + BOARD_SQUARE_SIZE, offset.y, LIGHTGRAY );
-                    DrawLine(offset.x, offset.y, offset.x, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
-                    DrawLine(offset.x + BOARD_SQUARE_SIZE, offset.y, offset.x + BOARD_SQUARE_SIZE, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
-                    DrawLine(offset.x, offset.y + BOARD_SQUARE_SIZE, offset.x + BOARD_SQUARE_SIZE, offset.y + BOARD_SQUARE_SIZE, LIGHTGRAY );
-                    break;
-                }
-                case GridSquare::BLOCK:
-                {
-                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, LIGHTGRAY);
-                    break;
-                }
-                case GridSquare::PLAYER_ONE:
-                {
-                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, BLUE);
-                    break;
-                }
-                case GridSquare::PLAYER_TWO:
-                {
-                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, RED);
-                    break;
-                }
-                case GridSquare::PLAYER_THREE:
-                {
-                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, YELLOW);
-                    break;
-                }
-                case GridSquare::PLAYER_FOUR:
-                {
-                    DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, GREEN);
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-            }
-
-            offset.x += BOARD_SQUARE_SIZE;
-        }
-
-        offset.x = controller;
-        offset.y += BOARD_SQUARE_SIZE;
     }
 }
 
@@ -444,67 +319,6 @@ void GameScreen::DrawGamePieces()
     }
 }
 
-void GameScreen::DrawOverlayBoard()
-{
-    if (selected)
-    {
-        // Draw gameplay area
-        Vector2 offset;
-        
-        offset.x = screenWidth / 2 - (( BOARD_SQUARE_SIZE * 20 ) / 2);
-        offset.y = screenHeight / 2 - (( BOARD_SQUARE_SIZE * 20 ) / 2);
-
-        int controller = offset.x;
-
-        for (int i = 0; i < GRID_VERTICAL_SIZE; i++)
-        {
-            for (int j = 0; j < GRID_HORIZONTAL_SIZE; j++)
-            {
-                switch( ob.Get( Point(i, j) ) )
-                {
-                    case GridSquare::EMPTY:
-                    {
-                        break;
-                    }
-                    case GridSquare::BLOCK:
-                    {
-                        break;
-                    }
-                    case GridSquare::PLAYER_ONE:
-                    {
-                        DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, BLUE);
-                        break;
-                    }
-                    case GridSquare::PLAYER_TWO:
-                    {
-                        DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, RED);
-                        break;
-                    }
-                    case GridSquare::PLAYER_THREE:
-                    {
-                        DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, YELLOW);
-                        break;
-                    }
-                    case GridSquare::PLAYER_FOUR:
-                    {
-                        DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, GREEN);
-                        break;
-                    }
-                    default:
-                    {
-                        break;
-                    }
-                }
-
-                offset.x += BOARD_SQUARE_SIZE;
-            }
-
-            offset.x = controller;
-            offset.y += BOARD_SQUARE_SIZE;
-        }
-    }
-}
-
 void GameScreen::DrawSelector()
 {
     PiecesAvailableForPlayLocations locations;
@@ -530,11 +344,15 @@ void GameScreen::DrawGame(void)
 
     if (!gameOver)
     {
-        DrawBoard();
+        DrawBoard::Draw(gb);
+        DrawPiecesOnBoard::Draw(gb);
 
         DrawGamePieces();
 
-        DrawOverlayBoard();
+        if( selected )
+        {
+            DrawPiecesOnBoard::Draw(overlayBoard);
+        }
 
         std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
         std::shared_ptr<Player> player;

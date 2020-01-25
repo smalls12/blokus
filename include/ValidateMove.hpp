@@ -7,24 +7,23 @@
 class ValidateMove
 {
     public:
-        // NOTE
-        // Might only need layout instead of Piece
-        inline static bool ValidatePlayerMove(Board board, MoveablePiece& piece, Point point)
+        // validates an entire board at once
+        inline static bool Validate(Board& base, Board& overlay)
         {
-            // see if any squares are already taken
-            for (int i = 0; i < 5; i++)
+            for (int i = 1; i < 19; i++)
             {
-                for (int j = 0; j < 5; j++)
+                for (int j = 1; j < 19; j++)
                 {
-                    // if the piece has a non empty square
-                    // check to see if that spot on the board is available
-                    if ( piece.GetLayout().Get(i, j) != GridSquare::EMPTY )
+                    // found a square containing a piece attempting to be played
+                    if ( overlay.Get( Point(i, j) ) != GridSquare::EMPTY )
                     {
-                        if ( board.Get( Point( point.GetX() + i, point.GetY() + j ) ) != GridSquare::EMPTY )
+                        // see if the base is already occupied at that location
+                        if ( base.Get( Point(i, j) ) != GridSquare::EMPTY )
                         {
-                            // spot already taken
                             return false;
                         }
+
+                        // also need to check adjacencies
                     }
                 }
             }

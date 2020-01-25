@@ -8,10 +8,10 @@ class Padding
         Padding();
         Padding(int left, int top, int right, int bottom);
 
-        int GetLeft();
-        int GetTop();
-        int GetRight();
-        int GetBottom();
+        int GetLeft() const;
+        int GetTop() const;
+        int GetRight() const;
+        int GetBottom() const;
 
         friend bool operator==(const Padding &l, const Padding &r)
         {
