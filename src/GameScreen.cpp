@@ -185,6 +185,21 @@ void GameScreen::UpdateGame(void)
                     selectedPieceLocation = overlayBoard.MovePiece(MovementDirection::DOWN);
                 }
 
+                if ( IsKeyPressed(KEY_F) )
+                {
+                    overlayBoard.FlipPiece();
+                }
+
+                if ( IsKeyPressed(KEY_M) )
+                {
+                    overlayBoard.MirrorPiece();
+                }
+
+                if ( IsKeyPressed(KEY_R) )
+                {
+                    overlayBoard.RotatePiece();
+                }
+
                 if ( IsKeyPressed(KEY_ENTER) )
                 {
                     if ( ProcessPlayerMoveInternal() )

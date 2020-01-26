@@ -10,6 +10,7 @@
 #include "CheckBoundaries.hpp"
 #include "AddPiece.hpp"
 
+#include "ManipulatePiece.hpp"
 #include "PieceRotationIterator.hpp"
 
 #include "spdlog/spdlog.h"
@@ -122,9 +123,41 @@ Point OverlayBoard::MovePiece(MovementDirection direction)
     return mSelectedPieceLocation;
 }
 
+void OverlayBoard::FlipPiece()
+{
+    spdlog::get("console")->info("OverlayBoard::FlipPiece() - Start");
+
+    ClearBoard::EmptyBoard( *this );
+
+    Layout temporaryLayout = mSelectedPiece.GetLayout();
+    ManipulatePiece::Flip(temporaryLayout);
+    mSelectedPiece = Piece(temporaryLayout);
+
+    AddPiece::AddPieceToBoard( *this, mSelectedPiece, mSelectedPieceLocation );
+}
+
+void OverlayBoard::MirrorPiece()
+{
+    spdlog::get("console")->info("OverlayBoard::MirrorPiece() - Start");
+
+    ClearBoard::EmptyBoard( *this );
+
+    Layout temporaryLayout = mSelectedPiece.GetLayout();
+    ManipulatePiece::Mirror(temporaryLayout);
+    mSelectedPiece = Piece(temporaryLayout);
+
+    AddPiece::AddPieceToBoard( *this, mSelectedPiece, mSelectedPieceLocation );
+}
+
 void OverlayBoard::RotatePiece()
 {
     spdlog::get("console")->info("OverlayBoard::RotatePiece() - Start");
+
+    ClearBoard::EmptyBoard( *this );
+
+    Layout temporaryLayout = mSelectedPiece.GetLayout();
+    ManipulatePiece::Rotate(temporaryLayout);
+    mSelectedPiece = Piece(temporaryLayout);
 
     if( mSelectedPieceRotation >= PieceRotationIterator::GetIterator().size() - 1 )
     {
@@ -134,14 +167,6 @@ void OverlayBoard::RotatePiece()
     {
         mSelectedPieceRotation++;
     }
-}
 
-void OverlayBoard::MirrorPiece()
-{
-    spdlog::get("console")->info("OverlayBoard::MirrorPiece() - Start");
-}
-
-void OverlayBoard::FlipPiece()
-{
-    spdlog::get("console")->info("OverlayBoard::FlipPiece() - Start");
+    AddPiece::AddPieceToBoard( *this, mSelectedPiece, mSelectedPieceLocation );
 }

@@ -25,9 +25,10 @@ class OverlayBoard : public Board
 
         void SetSelectedGamePiece(Piece piece);
         Point MovePiece(MovementDirection direction);
-        void RotatePiece();
-        void MirrorPiece();
         void FlipPiece();
+        void MirrorPiece();
+        void RotatePiece();
+
 
     private:
         // this stores the piece that was selected by the user
