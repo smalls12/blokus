@@ -11,10 +11,6 @@
 
 #include "IPlayerMoveRequestData.hpp"
 
-#include "PlayerId.hpp"
-#include "PieceType.hpp"
-#include "Point.hpp"
-
 class PlayerMoveRequestData : public IPlayerMoveRequestData
 {
     public:
@@ -27,11 +23,19 @@ class PlayerMoveRequestData : public IPlayerMoveRequestData
         void SetPieceType(PieceType type) { mPieceType = type; }
         PieceType GetPieceType() { return mPieceType; }
 
+        void SetPieceRotation(PieceRotation rotation) { mPieceRotation = rotation; }
+        PieceRotation GetPieceRotation() { return mPieceRotation; }
+
+        void SetPieceFlipped(bool flipped) { mPieceFlipped = flipped; }
+        bool GetPieceFlipped() { return mPieceFlipped; }
+
         void SetLocation(Point location) { mLocation = location; }
         Point GetLocation() { return mLocation; }
 
     private:
-        PlayerId    mPlayerId;
-        PieceType   mPieceType;
-        Point       mLocation;
+        PlayerId        mPlayerId;
+        PieceType       mPieceType;
+        PieceRotation   mPieceRotation;
+        bool            mPieceFlipped;
+        Point           mLocation;
 };

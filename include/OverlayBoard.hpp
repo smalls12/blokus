@@ -11,8 +11,9 @@
  * ========================================================= */
 
 #include "Board.hpp"
-#include "MovementDirection.hpp"
 #include "Piece.hpp"
+#include "MovementDirection.hpp"
+#include "IPlayerMoveRequestData.hpp"
 #include "PieceRotation.hpp"
 
 #include <vector>
@@ -24,11 +25,10 @@ class OverlayBoard : public Board
         ~OverlayBoard();
 
         void SetSelectedGamePiece(Piece piece);
-        Point MovePiece(MovementDirection direction);
+        void MovePiece(MovementDirection direction);
         void FlipPiece();
-        void MirrorPiece();
         void RotatePiece();
-
+        void GetPieceData(IPlayerMoveRequestData& data);
 
     private:
         // this stores the piece that was selected by the user
@@ -39,9 +39,9 @@ class OverlayBoard : public Board
         // used to manipulate the piece ( rotating, mirroring, flipping )
         // MoveablePiece   mDrawablePiece;
 
-        Point           mSelectedPieceLocation;
-
         unsigned int    mSelectedPieceRotation;
 
-        bool            mSelectedPieceMirrored;
+        bool            mSelectedPieceFlipped;
+
+        Point           mSelectedPieceLocation;
 };

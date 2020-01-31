@@ -32,6 +32,8 @@
 
 #include "PlayerIdString.hpp"
 
+#include "ManipulatePiece.hpp"
+
 extern "C" {
 #include "raylib.h"
 }
@@ -48,7 +50,6 @@ namespace
     OverlayBoard overlayBoard;
 
     static bool selected = false;
-    static Point selectedPieceLocation = Point(0,0);
 
     static bool beginPlay = true;
 
@@ -117,7 +118,8 @@ bool GameScreen::ProcessPlayerMoveInternal()
         PlayerMoveRequestData playerMoveRequestData;
         playerMoveRequestData.SetPlayerId(player->getPlayerId());
         playerMoveRequestData.SetPieceType(mSelectedPieceType);
-        playerMoveRequestData.SetLocation(selectedPieceLocation);
+
+        overlayBoard.GetPieceData(playerMoveRequestData);
 
         mProcessPlayerMove.Process(playerMoveRequestData);
 
@@ -134,7 +136,46 @@ bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
 {
     spdlog::get("console")->info("GameScreen::ProcessRemotePlayerMove() - Start");
 
-    AddPiece::AddPieceToBoard( gb, *mGamePieceBank.GetPlayerPiece(data.GetPlayerId(), data.GetPieceType()), data.GetLocation() );
+    Piece temporaryPiece = *mGamePieceBank.GetPlayerPiece(data.GetPlayerId(), data.GetPieceType());
+    Layout temporaryLayout = temporaryPiece.GetLayout();
+
+    if (data.GetPieceFlipped())
+    {
+        ManipulatePiece::Flip(temporaryLayout);
+    }
+
+    switch(data.GetPieceRotation())
+    {
+        case PieceRotation::ZERO_DEGREES:
+        {
+            break;
+        }
+        case PieceRotation::NINETY_DEGREES:
+        {
+            ManipulatePiece::Rotate(temporaryLayout);
+            break;
+        }
+        case PieceRotation::ONE_HUNDRED_EIGHTY_DEGREES:
+        {
+            ManipulatePiece::Rotate(temporaryLayout);
+            ManipulatePiece::Rotate(temporaryLayout);
+            break;
+        }
+        case PieceRotation::TWO_HUNDRED_SEVENTY_DEGREES:
+        {
+            ManipulatePiece::Rotate(temporaryLayout);
+            ManipulatePiece::Rotate(temporaryLayout);
+            ManipulatePiece::Rotate(temporaryLayout);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+    
+    temporaryPiece = Piece(temporaryLayout);
+    AddPiece::AddPieceToBoard( gb, temporaryPiece, data.GetLocation() );
 
     // advance to next player
     currentPlayersTurn = mGameFlowManager.NextPlayersTurn();
@@ -167,32 +208,27 @@ void GameScreen::UpdateGame(void)
 
                 if ( IsKeyPressed(KEY_LEFT) )
                 {
-                    selectedPieceLocation = overlayBoard.MovePiece(MovementDirection::LEFT);
+                    overlayBoard.MovePiece(MovementDirection::LEFT);
                 }
 
                 if ( IsKeyPressed(KEY_RIGHT) )
                 {
-                    selectedPieceLocation = overlayBoard.MovePiece(MovementDirection::RIGHT);
+                    overlayBoard.MovePiece(MovementDirection::RIGHT);
                 }
 
                 if ( IsKeyPressed(KEY_UP) )
                 {
-                    selectedPieceLocation =overlayBoard.MovePiece(MovementDirection::UP);
+                    overlayBoard.MovePiece(MovementDirection::UP);
                 }
 
                 if ( IsKeyPressed(KEY_DOWN) )
                 {
-                    selectedPieceLocation = overlayBoard.MovePiece(MovementDirection::DOWN);
+                    overlayBoard.MovePiece(MovementDirection::DOWN);
                 }
 
                 if ( IsKeyPressed(KEY_F) )
                 {
                     overlayBoard.FlipPiece();
-                }
-
-                if ( IsKeyPressed(KEY_M) )
-                {
-                    overlayBoard.MirrorPiece();
                 }
 
                 if ( IsKeyPressed(KEY_R) )

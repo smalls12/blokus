@@ -13,7 +13,25 @@ class MergeBoards
             {
                 for (int j = 1; j < 19; j++)
                 {
-                    base.Set( Point(i, j), overlay.Get( Point(i, j) ) );
+                    switch( overlay.Get( Point(i, j) ) )
+                    {
+                        case GridSquare::EMPTY:
+                        case GridSquare::BLOCK:
+                        {
+                            break;
+                        }
+                        case GridSquare::PLAYER_ONE:
+                        case GridSquare::PLAYER_TWO:
+                        case GridSquare::PLAYER_THREE:
+                        case GridSquare::PLAYER_FOUR:
+                        {
+                            base.Set( Point(i, j), overlay.Get( Point(i, j) ) );
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
                 }
             }
 

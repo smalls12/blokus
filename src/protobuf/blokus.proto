@@ -93,12 +93,22 @@ message Location {
 }
 
 message PlayerMoveReq {
+    enum PieceRotation {
+        BLOKUS_ZERO_DEGREES = 0;
+        BLOKUS_NINETY_DEGREES = 1;
+        BLOKUS_ONE_HUNDRED_EIGHTY_DEGREES = 2;
+        BLOKUS_TWO_HUNDRED_SEVENTY_DEGREES = 3;
+    }
+
     // id representing the move by the current user
     PlayerID id = 1;
 
     // this represents their move
     Piece piece = 2;
-    Location location = 3;
+    PieceRotation rotation = 3;
+    bool flipped = 4;
+
+    Location location = 5;
 }
 
 // ================================================================================

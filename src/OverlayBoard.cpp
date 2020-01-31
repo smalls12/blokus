@@ -23,9 +23,9 @@ namespace
 
 OverlayBoard::OverlayBoard()
 :   mSelectedPiece(),
-    mSelectedPieceLocation( Point(8, 8) ),
     mSelectedPieceRotation(0),
-    mSelectedPieceMirrored(false)
+    mSelectedPieceFlipped(false),
+    mSelectedPieceLocation( Point(8, 8) )
 {
     // spdlog::get("console")->info("OverlayBoard::OverlayBoard() - Start");
 }
@@ -43,11 +43,13 @@ void OverlayBoard::SetSelectedGamePiece(Piece piece)
 
     ClearBoard::EmptyBoard( *this );
     mSelectedPiece = piece;
+    mSelectedPieceRotation = 0;
+    mSelectedPieceFlipped = false;
     mSelectedPieceLocation = Point( 8, 8 );
     AddPiece::AddPieceToBoard( *this, mSelectedPiece, mSelectedPieceLocation );
 }
 
-Point OverlayBoard::MovePiece(MovementDirection direction)
+void OverlayBoard::MovePiece(MovementDirection direction)
 {
     spdlog::get("console")->info("OverlayBoard::MoveSelectedPiece() - Start");
 
@@ -119,8 +121,6 @@ Point OverlayBoard::MovePiece(MovementDirection direction)
     }
 
     AddPiece::AddPieceToBoard( *this, mSelectedPiece, mSelectedPieceLocation );
-
-    return mSelectedPieceLocation;
 }
 
 void OverlayBoard::FlipPiece()
@@ -133,18 +133,14 @@ void OverlayBoard::FlipPiece()
     ManipulatePiece::Flip(temporaryLayout);
     mSelectedPiece = Piece(temporaryLayout);
 
-    AddPiece::AddPieceToBoard( *this, mSelectedPiece, mSelectedPieceLocation );
-}
-
-void OverlayBoard::MirrorPiece()
-{
-    spdlog::get("console")->info("OverlayBoard::MirrorPiece() - Start");
-
-    ClearBoard::EmptyBoard( *this );
-
-    Layout temporaryLayout = mSelectedPiece.GetLayout();
-    ManipulatePiece::Mirror(temporaryLayout);
-    mSelectedPiece = Piece(temporaryLayout);
+    if (mSelectedPieceFlipped)
+    {
+        mSelectedPieceFlipped = false;
+    }
+    else
+    {
+        mSelectedPieceFlipped = true;
+    }
 
     AddPiece::AddPieceToBoard( *this, mSelectedPiece, mSelectedPieceLocation );
 }
@@ -169,4 +165,11 @@ void OverlayBoard::RotatePiece()
     }
 
     AddPiece::AddPieceToBoard( *this, mSelectedPiece, mSelectedPieceLocation );
+}
+
+void OverlayBoard::GetPieceData(IPlayerMoveRequestData& data)
+{
+    data.SetPieceRotation(PieceRotationIterator::GetIterator()[mSelectedPieceRotation]);
+    data.SetPieceFlipped(mSelectedPieceFlipped);
+    data.SetLocation(mSelectedPieceLocation);
 }
