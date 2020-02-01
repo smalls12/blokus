@@ -27,7 +27,11 @@ class DrawPiecesOnBoard
                     {
                         case GridSquare::INVALID:
                         {
-                            DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, GREEN);
+                            DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, DARKGREEN);
+
+                            DrawLine(offset.x, offset.y, offset.x + BOARD_SQUARE_SIZE, offset.y + BOARD_SQUARE_SIZE, BLACK );
+                            DrawLine(offset.x + BOARD_SQUARE_SIZE, offset.y, offset.x, offset.y + BOARD_SQUARE_SIZE, BLACK );
+
                             break;
                         }
                         case GridSquare::PLAYER_ONE:
