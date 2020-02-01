@@ -4,11 +4,11 @@
 
 GamePieceBank::GamePieceBank()
 {
-    mGamePieces = std::map<PlayerId, std::map<PieceType, MoveablePiece>> {
-        { PlayerId::PLAYER_ONE, BuildGamePieces::Build(GridSquare::PLAYER_ONE) },
-        { PlayerId::PLAYER_TWO, BuildGamePieces::Build(GridSquare::PLAYER_TWO) },
-        { PlayerId::PLAYER_THREE, BuildGamePieces::Build(GridSquare::PLAYER_THREE) },
-        { PlayerId::PLAYER_FOUR, BuildGamePieces::Build(GridSquare::PLAYER_FOUR) },
+    mGamePieces = std::map<PlayerColor, std::map<PieceType, MoveablePiece>> {
+        { PlayerColor::BLUE, BuildGamePieces::Build(GridSquare::PLAYER_ONE) },
+        { PlayerColor::RED, BuildGamePieces::Build(GridSquare::PLAYER_TWO) },
+        { PlayerColor::YELLOW, BuildGamePieces::Build(GridSquare::PLAYER_THREE) },
+        { PlayerColor::GREEN, BuildGamePieces::Build(GridSquare::PLAYER_FOUR) },
     };
 }
 
@@ -17,7 +17,7 @@ GamePieceBank::~GamePieceBank()
 
 }
 
-MoveablePiece* GamePieceBank::GetPlayerPiece(const PlayerId id, const PieceType type)
+MoveablePiece* GamePieceBank::GetPlayerPiece(const PlayerColor color, const PieceType type)
 {
-    return &mGamePieces.at(id).at(type);
+    return &mGamePieces.at(color).at(type);
 }

@@ -35,7 +35,8 @@ extern "C" {
 #include "PlayerMoveRequest.hpp"
 #include "ProcessPlayerMove.hpp"
 
-#include "GameFlowManager.hpp"
+#include "PlayerTurnManager.hpp"
+#include "InitialMoveIndicator.hpp"
 
 #include <sstream>
 
@@ -131,11 +132,13 @@ void ShowGameLobby_StartGame(Game gm)
     PlayerMoveRequest playerMoveRequest(m, playerMoveMessageBase);
     ProcessPlayerMove processPlayerMove(gameLobby, playerMoveRequest);
 
-    // create the game flow manager
-    GameFlowManager gameFlowManager(gm);
+    // create the player turn manager
+    PlayerTurnManager playerTurnManager(gm);
+
+    InitialMoveIndicator initialMoveIndicator;
 
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, gameFlowManager);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator);
     
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 
@@ -211,11 +214,13 @@ void ShowGameLobby_JoinGame(Game gm)
     PlayerMoveRequest playerMoveRequest(m, playerMoveMessageBase);
     ProcessPlayerMove processPlayerMove(gameLobby, playerMoveRequest);
 
-    // create the game flow manager
-    GameFlowManager gameFlowManager(gm);
+    // create the player turn manager
+    PlayerTurnManager playerTurnManager(gm);
+
+    InitialMoveIndicator initialMoveIndicator;
 
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, gameFlowManager);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator);
 
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 

@@ -34,6 +34,12 @@
 
 #include "ManipulatePiece.hpp"
 
+// =============================================================
+// NOTE
+//
+// Important where this include happens
+// It can mess with the PlayerColor enum class
+// =============================================================
 extern "C" {
 #include "raylib.h"
 }
@@ -50,43 +56,54 @@ namespace
     OverlayBoard overlayBoard;
 
     static bool selected = false;
-
-    static bool beginPlay = true;
-
-    static PlayerId currentPlayersTurn = PlayerId::PLAYER_ONE;
-
-    static bool initialPlay = true;
 }
 
 #include "DrawBoard.hpp"
 #include "DrawPiecesOnBoard.hpp"
+
+#ifdef BLUE
+    #undef BLUE
+#endif
+
+#ifdef RED
+    #undef RED
+#endif
+
+#ifdef GREEN
+    #undef GREEN
+#endif
+
+#ifdef YELLOW
+    #undef YELLOW
+#endif
+
+#include "PlayerColor.hpp"
 
 GameScreen::GameScreen(IGameSettings& settings,
                        MessageProcessor& messageProcessor,
                        ReadGameNotification& readGameNotification,
                        PlayerManager& playerManager,
                        ProcessPlayerMove& processPlayerMove,
-                       GameFlowManager& gameFlowManager )
+                       PlayerTurnManager& playerTurnManager,
+                       InitialMoveIndicator& initialMoveIndicator   )
 :   mSettings(settings),
     mMessageProcessor(messageProcessor),
     mReadGameNotification(readGameNotification),
     mPlayerManager(playerManager),
     mProcessPlayerMove(processPlayerMove),
-    mGameFlowManager(gameFlowManager),
+    mPlayerTurnManager(playerTurnManager),
+    mInitialMoveIndicator(initialMoveIndicator),
     mGamePieceBank(),
     mPieceSelector(),
     mSelectedPieceType(mPieceSelector.GetNextPiece()),
     //mSelectedPiece(nullptr)
-    mPlayerSelectedPiece(nullptr)
+    mPlayerSelectedPiece(nullptr),
+    mCurrentPlayersTurn(std::pair<PlayerId, PlayerColor>(PlayerId::PLAYER_ONE, PlayerColor::BLUE))
 {
     spdlog::get("console")->info("GameScreen::GameScreen() - Start");
 
-    std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
-    std::shared_ptr<Player> player;
-    mPlayerManager.GetPlayer(uuid, player);
-
     // mSelectedPiece = mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType);
-    mPlayerSelectedPiece = PlayerSelectedPiece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType));
+    mPlayerSelectedPiece = PlayerSelectedPiece(mGamePieceBank.GetPlayerPiece(mCurrentPlayersTurn.second, mSelectedPieceType));
 }
 
 GameScreen::~GameScreen()
@@ -99,8 +116,6 @@ void GameScreen::InitGame(void)
 {
     pause = false;
 
-    beginPlay = true;
-
     ClearBoard::EmptyBoard( gb );
     ClearBoard::EmptyBoard( overlayBoard );
 }
@@ -109,7 +124,7 @@ bool GameScreen::ProcessPlayerMoveInternal()
 {
     spdlog::get("console")->info("GameScreen::ProcessPlayerMoveInternal() - Start");
 
-    if ( !initialPlay )
+    if ( mInitialMoveIndicator.Check(mCurrentPlayersTurn.second) )
     {
         if ( !Validate::Normal( gb, overlayBoard ) )
         {
@@ -125,7 +140,7 @@ bool GameScreen::ProcessPlayerMoveInternal()
             return false;
         }
 
-        initialPlay = false;
+        mInitialMoveIndicator.Perform(mCurrentPlayersTurn.second);
     }
 
     MergeBoards::Merge(gb, overlayBoard);
@@ -150,7 +165,7 @@ bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
 {
     spdlog::get("console")->info("GameScreen::ProcessRemotePlayerMove() - Start");
 
-    Piece temporaryPiece = *mGamePieceBank.GetPlayerPiece(data.GetPlayerId(), data.GetPieceType());
+    Piece temporaryPiece = *mGamePieceBank.GetPlayerPiece(mCurrentPlayersTurn.second, data.GetPieceType());
     Layout temporaryLayout = temporaryPiece.GetLayout();
 
     if (data.GetPieceFlipped())
@@ -192,7 +207,7 @@ bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
     AddPiece::AddPieceToBoard( gb, temporaryPiece, data.GetLocation() );
 
     // advance to next player
-    currentPlayersTurn = mGameFlowManager.NextPlayersTurn();
+    mCurrentPlayersTurn = mPlayerTurnManager.NextPlayersTurn();
 
     return true;
 }
@@ -211,7 +226,7 @@ void GameScreen::UpdateGame(void)
         std::shared_ptr<Player> player;
         mPlayerManager.GetPlayer(uuid, player);
 
-        if (!pause && ( currentPlayersTurn == player->getPlayerId() ))
+        if (!pause && ( mCurrentPlayersTurn.first == player->getPlayerId() ))
         {
             if( selected )
             {
@@ -223,7 +238,7 @@ void GameScreen::UpdateGame(void)
                         mPlayerSelectedPiece.GetPiece()->PiecePlayed();
 
                         // advance to next player
-                        currentPlayersTurn = mGameFlowManager.NextPlayersTurn();
+                        mCurrentPlayersTurn = mPlayerTurnManager.NextPlayersTurn();
 
                         selected = false;
                     }
@@ -265,7 +280,7 @@ void GameScreen::UpdateGame(void)
                         overlayBoard.RotatePiece();
                     }
 
-                    if ( !initialPlay )
+                    if ( mInitialMoveIndicator.Check( mCurrentPlayersTurn.second ) )
                     {
                         if ( !Validate::Normal( gb, overlayBoard ) )
                         {
@@ -285,26 +300,18 @@ void GameScreen::UpdateGame(void)
             {
                 if ( IsKeyPressed(KEY_SPACE) )
                 {
-                    std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
-                    std::shared_ptr<Player> player;
-                    mPlayerManager.GetPlayer(uuid, player);
-
                     do
                     {
                         mSelectedPieceType = mPieceSelector.GetNextPiece();
                     }
-                    while( mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType)->HasPieceBeenPlayed() );
+                    while( mGamePieceBank.GetPlayerPiece(mCurrentPlayersTurn.second, mSelectedPieceType)->HasPieceBeenPlayed() );
 
                     spdlog::get("console")->info("GameScreen::UpdateGame() - {} Piece Selected", PieceTypeString::PrintPieceTypeString(mSelectedPieceType));
                 }
 
                 if ( IsKeyPressed(KEY_ENTER) )
                 {
-                    std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
-                    std::shared_ptr<Player> player;
-                    mPlayerManager.GetPlayer(uuid, player);
-
-                    mPlayerSelectedPiece = PlayerSelectedPiece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), mSelectedPieceType));
+                    mPlayerSelectedPiece = PlayerSelectedPiece(mGamePieceBank.GetPlayerPiece(mCurrentPlayersTurn.second, mSelectedPieceType));
                     
                     overlayBoard.SetSelectedGamePiece( Piece( mPlayerSelectedPiece.GetPiece()->GetLayout() ) );
 
@@ -339,7 +346,7 @@ void GameScreen::DrawGamePieces()
         std::shared_ptr<Player> player;
         mPlayerManager.GetPlayer(uuid, player);
 
-        PlayerSelectedPiece piece(mGamePieceBank.GetPlayerPiece(player->getPlayerId(), it->first));
+        PlayerSelectedPiece piece(mGamePieceBank.GetPlayerPiece(mCurrentPlayersTurn.second, it->first));
 
         for (int i = 0; i < 5; i++)
         {
@@ -369,22 +376,22 @@ void GameScreen::DrawGamePieces()
                     }
                     case GridSquare::PLAYER_ONE:
                     {
-                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, BLUE);
+                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, (Color){ 0, 121, 241, 255 });
                         break;
                     }
                     case GridSquare::PLAYER_TWO:
                     {
-                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, RED);
+                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, (Color){ 230, 41, 55, 255 });
                         break;
                     }
                     case GridSquare::PLAYER_THREE:
                     {
-                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, YELLOW);
+                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, (Color){ 253, 249, 0, 255 });
                         break;
                     }
                     case GridSquare::PLAYER_FOUR:
                     {
-                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, GREEN);
+                        DrawRectangle(pieceOffset.x, pieceOffset.y, PIECE_SQUARE_SIZE, PIECE_SQUARE_SIZE, (Color){ 0, 228, 48, 255 });
                         break;
                     }
                     default:
@@ -441,7 +448,7 @@ void GameScreen::DrawGame(void)
         std::shared_ptr<Player> player;
         mPlayerManager.GetPlayer(uuid, player);
 
-        if( currentPlayersTurn == player->getPlayerId() )
+        if( mCurrentPlayersTurn.first == player->getPlayerId() )
         {
             DrawSelector();
         }

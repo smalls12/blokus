@@ -67,7 +67,6 @@ class Validate
             }
             else
             {
-                // search for pieces directly on top of each other
                 for (int i = 1; i < 19; i++)
                 {
                     for (int j = 1; j < 19; j++)

@@ -67,7 +67,8 @@ set ( src_blokus
       src/PlayerMoveRequestData.cpp
       src/ProcessPlayerMove.cpp
       src/RandomizePlayerIds.cpp
-      src/GameFlowManager.cpp
+      src/PlayerTurnManager.cpp
+      src/InitialMoveIndicator.cpp
       src/main.cpp
 )
 
@@ -115,7 +116,7 @@ set ( src_blokus_test
       src/ReadGameNotification.cpp
       src/PieceSelector.cpp
       src/Game.cpp
-      src/GameFlowManager.cpp
+      src/PlayerTurnManager.cpp
       src/BuildGamePieces.cpp
       src/GamePieceBank.cpp
       test/TestSuiteSetup.cpp
@@ -127,7 +128,7 @@ set ( src_blokus_test
       test/TestSuiteMoveablePiece.cpp
       test/TestSuiteLayout.cpp
       test/TestSuitePadding.cpp
-      test/TestSuiteGameFlowManager.cpp
+      test/TestSuitePlayerTurnManager.cpp
       test/TestSuiteGamePieceBank.cpp
 )
 

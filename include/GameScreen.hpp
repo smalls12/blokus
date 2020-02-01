@@ -5,7 +5,8 @@
 #include "ReadGameNotification.hpp"
 #include "PlayerManager.hpp"
 #include "ProcessPlayerMove.hpp"
-#include "GameFlowManager.hpp"
+#include "PlayerTurnManager.hpp"
+#include "InitialMoveIndicator.hpp"
 
 #include "IPlayerMoveRequestData.hpp"
 
@@ -21,7 +22,8 @@ class GameScreen
                     ReadGameNotification& readGameNotification,
                     PlayerManager& playerManager,
                     ProcessPlayerMove& processPlayerMove,
-                    GameFlowManager& gameFlowManager   );
+                    PlayerTurnManager& playerTurnManager,
+                    InitialMoveIndicator& initialMoveIndicator   );
         ~GameScreen();
 
         bool ProcessRemotePlayerMove(IPlayerMoveRequestData& data);
@@ -33,7 +35,8 @@ class GameScreen
         ReadGameNotification&       mReadGameNotification;
         PlayerManager&              mPlayerManager;
         ProcessPlayerMove&          mProcessPlayerMove;
-        GameFlowManager&            mGameFlowManager;
+        PlayerTurnManager&          mPlayerTurnManager;
+        InitialMoveIndicator&       mInitialMoveIndicator;
 
     private:
         // private methods
@@ -49,8 +52,10 @@ class GameScreen
         void UnloadGame();
 
         // private variables
-        GamePieceBank           mGamePieceBank;
-        PieceSelector           mPieceSelector;
-        PieceType               mSelectedPieceType;
-        PlayerSelectedPiece     mPlayerSelectedPiece;
+        GamePieceBank                       mGamePieceBank;
+        PieceSelector                       mPieceSelector;
+        PieceType                           mSelectedPieceType;
+        PlayerSelectedPiece                 mPlayerSelectedPiece;
+
+        std::pair<PlayerId, PlayerColor>    mCurrentPlayersTurn;
 };

@@ -43,11 +43,11 @@ TEST_F(TestSuiteGamePieceBank, ReferenceReturn)
 {
 	GamePieceBank gamePieceBank;
 
-    MoveablePiece* moveablePieceBefore = gamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, PieceType::I1);
+    MoveablePiece* moveablePieceBefore = gamePieceBank.GetPlayerPiece(PlayerColor::BLUE, PieceType::I1);
     EXPECT_FALSE(moveablePieceBefore->HasPieceBeenPlayed());
     moveablePieceBefore->PiecePlayed();
 
-    MoveablePiece* moveablePieceAfter = gamePieceBank.GetPlayerPiece(PlayerId::PLAYER_ONE, PieceType::I1);
+    MoveablePiece* moveablePieceAfter = gamePieceBank.GetPlayerPiece(PlayerColor::BLUE, PieceType::I1);
     EXPECT_TRUE(moveablePieceAfter->HasPieceBeenPlayed());
 }
 // }  // namespace - could surround Project1Test in a namespace
