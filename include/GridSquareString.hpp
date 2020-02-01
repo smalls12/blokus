@@ -22,6 +22,11 @@ class GridSquareString
                     sstream << "BLOCK";
                     break;
                 }
+                case GridSquare::INVALID:
+                {
+                    sstream << "INVALID";
+                    break;
+                }
                 case GridSquare::PLAYER_ONE:
                 {
                     sstream << "PLAYER_ONE";

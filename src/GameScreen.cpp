@@ -4,7 +4,7 @@
 #define GRID_HORIZONTAL_SIZE    20
 #define GRID_VERTICAL_SIZE      20
 
-#include "ValidateMove.hpp"
+#include "Validate.hpp"
 
 #include "GridSquare.hpp"
 #include "Point.hpp"
@@ -54,6 +54,8 @@ namespace
     static bool beginPlay = true;
 
     static PlayerId currentPlayersTurn = PlayerId::PLAYER_ONE;
+
+    static bool initialPlay = true;
 }
 
 #include "DrawBoard.hpp"
@@ -107,29 +109,41 @@ bool GameScreen::ProcessPlayerMoveInternal()
 {
     spdlog::get("console")->info("GameScreen::ProcessPlayerMoveInternal() - Start");
 
-    if ( ValidateMove::Validate( gb, overlayBoard ) )
+    if ( !initialPlay )
     {
-        MergeBoards::Merge(gb, overlayBoard);
-
-        std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
-        std::shared_ptr<Player> player;
-        mPlayerManager.GetPlayer(uuid, player);
-
-        PlayerMoveRequestData playerMoveRequestData;
-        playerMoveRequestData.SetPlayerId(player->getPlayerId());
-        playerMoveRequestData.SetPieceType(mSelectedPieceType);
-
-        overlayBoard.GetPieceData(playerMoveRequestData);
-
-        mProcessPlayerMove.Process(playerMoveRequestData);
-
-        return true;
+        if ( !Validate::Normal( gb, overlayBoard ) )
+        {
+            spdlog::get("console")->error("GameScreen::ProcessPlayerMoveInternal() - Invalid location.");
+            return false;
+        }
     }
     else
     {
-        spdlog::get("console")->error("GameScreen::ProcessPlayerMoveInternal() - Invalid location.");
-        return false;
+        if ( !Validate::InitialMove( gb, overlayBoard ) )
+        {
+            spdlog::get("console")->error("GameScreen::ProcessPlayerMoveInternal() - Invalid location.");
+            return false;
+        }
+
+        initialPlay = false;
     }
+
+    MergeBoards::Merge(gb, overlayBoard);
+
+    std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+    std::shared_ptr<Player> player;
+    mPlayerManager.GetPlayer(uuid, player);
+
+    PlayerMoveRequestData playerMoveRequestData;
+    playerMoveRequestData.SetPlayerId(player->getPlayerId());
+    playerMoveRequestData.SetPieceType(mSelectedPieceType);
+
+    overlayBoard.GetPieceData(playerMoveRequestData);
+
+    mProcessPlayerMove.Process(playerMoveRequestData);
+
+    return true;
+
 }
 
 bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
@@ -201,41 +215,6 @@ void GameScreen::UpdateGame(void)
         {
             if( selected )
             {
-                if ( IsKeyPressed(KEY_ESCAPE) )
-                {
-                    selected = false;
-                }
-
-                if ( IsKeyPressed(KEY_LEFT) )
-                {
-                    overlayBoard.MovePiece(MovementDirection::LEFT);
-                }
-
-                if ( IsKeyPressed(KEY_RIGHT) )
-                {
-                    overlayBoard.MovePiece(MovementDirection::RIGHT);
-                }
-
-                if ( IsKeyPressed(KEY_UP) )
-                {
-                    overlayBoard.MovePiece(MovementDirection::UP);
-                }
-
-                if ( IsKeyPressed(KEY_DOWN) )
-                {
-                    overlayBoard.MovePiece(MovementDirection::DOWN);
-                }
-
-                if ( IsKeyPressed(KEY_F) )
-                {
-                    overlayBoard.FlipPiece();
-                }
-
-                if ( IsKeyPressed(KEY_R) )
-                {
-                    overlayBoard.RotatePiece();
-                }
-
                 if ( IsKeyPressed(KEY_ENTER) )
                 {
                     if ( ProcessPlayerMoveInternal() )
@@ -247,6 +226,58 @@ void GameScreen::UpdateGame(void)
                         currentPlayersTurn = mGameFlowManager.NextPlayersTurn();
 
                         selected = false;
+                    }
+                }
+                else
+                {
+                    if ( IsKeyPressed(KEY_ESCAPE) )
+                    {
+                        selected = false;
+                    }
+
+                    if ( IsKeyPressed(KEY_LEFT) )
+                    {
+                        overlayBoard.MovePiece(MovementDirection::LEFT);
+                    }
+
+                    if ( IsKeyPressed(KEY_RIGHT) )
+                    {
+                        overlayBoard.MovePiece(MovementDirection::RIGHT);
+                    }
+
+                    if ( IsKeyPressed(KEY_UP) )
+                    {
+                        overlayBoard.MovePiece(MovementDirection::UP);
+                    }
+
+                    if ( IsKeyPressed(KEY_DOWN) )
+                    {
+                        overlayBoard.MovePiece(MovementDirection::DOWN);
+                    }
+
+                    if ( IsKeyPressed(KEY_F) )
+                    {
+                        overlayBoard.FlipPiece();
+                    }
+
+                    if ( IsKeyPressed(KEY_R) )
+                    {
+                        overlayBoard.RotatePiece();
+                    }
+
+                    if ( !initialPlay )
+                    {
+                        if ( !Validate::Normal( gb, overlayBoard ) )
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        if ( !Validate::InitialMove( gb, overlayBoard ) )
+                        {
+
+                        }
                     }
                 }
             }
@@ -332,6 +363,7 @@ void GameScreen::DrawGamePieces()
                         break;
                     }
                     case GridSquare::BLOCK:
+                    case GridSquare::INVALID:
                     {
                         break;
                     }

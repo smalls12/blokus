@@ -25,6 +25,11 @@ class DrawPiecesOnBoard
                 {
                     switch( board.Get( Point(i, j) ) )
                     {
+                        case GridSquare::INVALID:
+                        {
+                            DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, GREEN);
+                            break;
+                        }
                         case GridSquare::PLAYER_ONE:
                         {
                             DrawRectangle(offset.x, offset.y, BOARD_SQUARE_SIZE, BOARD_SQUARE_SIZE, BLUE);

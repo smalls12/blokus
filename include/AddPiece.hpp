@@ -32,6 +32,7 @@ class AddPiece
                     {
                         case GridSquare::EMPTY:
                         case GridSquare::BLOCK:
+                        case GridSquare::INVALID:
                         {
                             break;
                         }
