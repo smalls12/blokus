@@ -7,6 +7,7 @@
 #include "ProcessPlayerMove.hpp"
 #include "PlayerTurnManager.hpp"
 #include "InitialMoveIndicator.hpp"
+#include "PlayerScores.hpp"
 
 #include "IPlayerMoveRequestData.hpp"
 
@@ -23,7 +24,8 @@ class GameScreen
                     PlayerManager& playerManager,
                     ProcessPlayerMove& processPlayerMove,
                     PlayerTurnManager& playerTurnManager,
-                    InitialMoveIndicator& initialMoveIndicator   );
+                    InitialMoveIndicator& initialMoveIndicator,
+                    PlayerScores& playerScores   );
         ~GameScreen();
 
         bool ProcessRemotePlayerMove(IPlayerMoveRequestData& data);
@@ -37,6 +39,7 @@ class GameScreen
         ProcessPlayerMove&          mProcessPlayerMove;
         PlayerTurnManager&          mPlayerTurnManager;
         InitialMoveIndicator&       mInitialMoveIndicator;
+        PlayerScores&               mPlayerScores;
 
     private:
         // private methods
@@ -46,6 +49,7 @@ class GameScreen
         void UpdateGame();
         void DrawGamePieces();
         void DrawSelector();
+        void DrawScores();
         void DrawGame();
         void CheckForNotification();
         void UpdateDrawFrame();

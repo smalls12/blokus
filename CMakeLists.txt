@@ -69,6 +69,7 @@ set ( src_blokus
       src/RandomizePlayerIds.cpp
       src/PlayerTurnManager.cpp
       src/InitialMoveIndicator.cpp
+      src/PlayerScores.cpp
       src/main.cpp
 )
 

@@ -14,8 +14,8 @@ class DrawPiecesOnBoard
              // Draw gameplay area
             Vector2 offset;
             
-            offset.x = screenWidth / 2 - (( BOARD_SQUARE_SIZE * 20 ) / 2);
-            offset.y = screenHeight / 2 - (( BOARD_SQUARE_SIZE * 20 ) / 2);
+            offset.x = 100;
+            offset.y = 100;
 
             int controller = offset.x;
 

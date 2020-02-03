@@ -5,34 +5,24 @@
 #define GRID_VERTICAL_SIZE      20
 
 #include "Validate.hpp"
-
 #include "GridSquare.hpp"
 #include "Point.hpp"
 #include "Layout.hpp"
-
 #include "Piece.hpp"
 #include "PieceTypeString.hpp"
-
 #include "AddPiece.hpp"
 #include "ClearBoard.hpp"
 #include "MergeBoards.hpp"
-
-#include "CheckBoundaries.hpp"
-
 #include "GameBoard.hpp"
 #include "OverlayBoard.hpp"
-
 #include "GameScreen.hpp"
-
 #include "PlayerMoveRequestData.hpp"
-
-#include "PieceTypeIterator.hpp"
-
 #include "PiecesAvailableForPlayLocations.hpp"
-
 #include "PlayerIdString.hpp"
-
 #include "ManipulatePiece.hpp"
+#include "CalculatePieceScore.hpp"
+#include "DrawBoard.hpp"
+#include "DrawPiecesOnBoard.hpp"
 
 // =============================================================
 // NOTE
@@ -46,7 +36,7 @@ extern "C" {
 
 namespace
 {
-    static const int screenWidth = 600;
+    static const int screenWidth = 800;
     static const int screenHeight = 600;
 
     static bool gameOver = false;
@@ -57,9 +47,6 @@ namespace
 
     static bool selected = false;
 }
-
-#include "DrawBoard.hpp"
-#include "DrawPiecesOnBoard.hpp"
 
 #ifdef BLUE
     #undef BLUE
@@ -79,13 +66,18 @@ namespace
 
 #include "PlayerColor.hpp"
 
+extern "C" {
+#include "raygui.h"
+}
+
 GameScreen::GameScreen(IGameSettings& settings,
                        MessageProcessor& messageProcessor,
                        ReadGameNotification& readGameNotification,
                        PlayerManager& playerManager,
                        ProcessPlayerMove& processPlayerMove,
                        PlayerTurnManager& playerTurnManager,
-                       InitialMoveIndicator& initialMoveIndicator   )
+                       InitialMoveIndicator& initialMoveIndicator,
+                       PlayerScores& playerScores   )
 :   mSettings(settings),
     mMessageProcessor(messageProcessor),
     mReadGameNotification(readGameNotification),
@@ -93,6 +85,7 @@ GameScreen::GameScreen(IGameSettings& settings,
     mProcessPlayerMove(processPlayerMove),
     mPlayerTurnManager(playerTurnManager),
     mInitialMoveIndicator(initialMoveIndicator),
+    mPlayerScores(playerScores),
     mGamePieceBank(),
     mPieceSelector(),
     mSelectedPieceType(mPieceSelector.GetNextPiece()),
@@ -148,6 +141,8 @@ bool GameScreen::ProcessPlayerMoveInternal()
     std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
     std::shared_ptr<Player> player;
     mPlayerManager.GetPlayer(uuid, player);
+
+    mPlayerScores.AddToScore(player->getPlayerId(), CalculatePieceScore::CalculateFromBoard(overlayBoard));
 
     PlayerMoveRequestData playerMoveRequestData;
     playerMoveRequestData.SetPlayerId(player->getPlayerId());
@@ -205,6 +200,8 @@ bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
     
     temporaryPiece = Piece(temporaryLayout);
     AddPiece::AddPieceToBoard( gb, temporaryPiece, data.GetLocation() );
+
+    mPlayerScores.AddToScore(data.GetPlayerId(), CalculatePieceScore::CalculateFromLayout(temporaryLayout));
 
     // advance to next player
     mCurrentPlayersTurn = mPlayerTurnManager.NextPlayersTurn();
@@ -425,12 +422,55 @@ void GameScreen::DrawSelector()
     DrawLine(selectorOffset.x, selectorOffset.y + ( PIECE_SQUARE_SIZE * 5 ), selectorOffset.x + ( PIECE_SQUARE_SIZE * 5 ), selectorOffset.y + ( PIECE_SQUARE_SIZE * 5 ) + 1, DARKGRAY );
 }
 
+void GameScreen::DrawScores()
+{
+    GuiLabel((Rectangle){620, 20, 50, 20}, "Scores");
+
+    switch(mSettings.GetGameConfiguration())
+    {
+        case GameConfiguration::TWO_PLAYER:
+        {
+            GuiLabel((Rectangle){620, 50, 40, 20}, "Player1 : ");
+            GuiLabel((Rectangle){660, 50, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_ONE)).c_str());
+
+            GuiLabel((Rectangle){620, 70, 40, 20}, "Player2 : ");
+            GuiLabel((Rectangle){660, 70, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_TWO)).c_str());
+
+            break;
+        }
+        case GameConfiguration::FOUR_PLAYER:
+        {
+            GuiLabel((Rectangle){620, 50, 40, 20}, "Player1 : ");
+            GuiLabel((Rectangle){660, 50, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_ONE)).c_str());
+
+            GuiLabel((Rectangle){620, 70, 40, 20}, "Player2 : ");
+            GuiLabel((Rectangle){660, 70, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_TWO)).c_str());
+
+            GuiLabel((Rectangle){620, 90, 40, 20}, "Player3 : ");
+            GuiLabel((Rectangle){660, 90, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_THREE)).c_str());
+
+            GuiLabel((Rectangle){620, 110, 40, 20}, "Player4 : ");
+            GuiLabel((Rectangle){660, 110, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_FOUR)).c_str());
+            break;
+        }
+        default:
+        {
+            spdlog::get("console")->info("PlayerTurnManager::PlayerTurnManager() - Unhandled Game Configuration.");
+            break;
+        }
+    }
+}
+
 // Draw game (one frame)
 void GameScreen::DrawGame(void)
 {
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
+
+    DrawRectangleRec((Rectangle){ 600, 0, 200, 600 }, (Color){ 80, 80, 80, 255});
+    DrawRectangleRec((Rectangle){ 610, 10, 180, 180 }, (Color){ 80, 60, 80, 255});
+    DrawRectangleRec((Rectangle){ 610, 210, 180, 380 }, (Color){ 80, 60, 80, 255});
 
     if (!gameOver)
     {
@@ -456,6 +496,8 @@ void GameScreen::DrawGame(void)
         {
             DrawText("WAITING FOR NEXT TURN", screenWidth/2 - MeasureText("WAITING FOR NEXT TURN", 40)/2, screenHeight/2 - 40, 40, GRAY);
         }
+
+        DrawScores();
         
         if (pause)
         {
@@ -549,6 +591,8 @@ bool GameScreen::Show()
     InitWindow(screenWidth, screenHeight, sstream.str().c_str());
 
     SetTargetFPS(30);
+
+    GuiLoadStyleDefault();
 
     // Main game loop
     while (!WindowShouldClose())

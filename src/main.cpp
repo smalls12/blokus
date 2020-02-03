@@ -137,8 +137,10 @@ void ShowGameLobby_StartGame(Game gm)
 
     InitialMoveIndicator initialMoveIndicator;
 
+    PlayerScores playerScores(gm);
+
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator, playerScores);
     
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 
@@ -219,8 +221,10 @@ void ShowGameLobby_JoinGame(Game gm)
 
     InitialMoveIndicator initialMoveIndicator;
 
+    PlayerScores playerScores(gm);
+
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator, playerScores);
 
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
 
