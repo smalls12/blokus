@@ -111,19 +111,16 @@ message PlayerMoveReq {
     Location location = 5;
 }
 
-// ================================================================================
-// teardown
-// ================================================================================
-message EndGameReq {
-    // id representing who won
-    PlayerID id = 1;
+message ChatReq {
+    string message = 1;
+    string username = 2;
 }
 
 enum Type {
     REGISTER = 0;
     START_GAME = 1;
     PLAYER_MOVE = 2;
-    END_GAME = 3;
+    CHAT = 3;
 }
 
 message Request {
@@ -131,7 +128,7 @@ message Request {
     RegisterReq register_req = 2;
     StartGameReq start_game_req = 3;
     PlayerMoveReq player_move_req = 4;
-    EndGameReq end_game_req = 5;
+    ChatReq chat_req = 5;
 }
 
 message Response {

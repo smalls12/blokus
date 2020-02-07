@@ -3,8 +3,6 @@
 #include "IGameLobby.hpp"
 #include "IPlayerMoveRequest.hpp"
 
-#include "spdlog/spdlog.h"
-
 class ProcessPlayerMove
 {
     public:

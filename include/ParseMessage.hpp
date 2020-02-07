@@ -37,6 +37,11 @@ class ParseMessage
                             mt = MessageType::PLAYERMOVE_REQUEST;
                             break;
                         }
+                        case blokus::CHAT:
+                        {
+                            mt = MessageType::CHAT_REQUEST;
+                            break;
+                        }
                         default:
                         {
                             break;
@@ -61,6 +66,11 @@ class ParseMessage
                         case blokus::PLAYER_MOVE:
                         {
                             mt = MessageType::PLAYERMOVE_RESPONSE;
+                            break;
+                        }
+                        case blokus::CHAT:
+                        {
+                            mt = MessageType::CHAT_RESPONSE;
                             break;
                         }
                         default:

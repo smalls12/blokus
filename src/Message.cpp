@@ -434,6 +434,40 @@ bool Message::ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequ
     return true;
 }
 
+std::string Message::BuildChatRequestMessage(IMessageBase& base, IChatRequestData& data)
+{
+    blokus::Message message;
+    message.set_uuid(base.GetUniqueIdentifier());
+
+    message.set_type(blokus::Message::REQUEST);
+
+    blokus::Request *_request = message.mutable_request();
+    _request->set_type(blokus::CHAT);
+
+    blokus::ChatReq *_chat = _request->mutable_chat_req();
+    _chat->set_username(data.GetUsername());
+    _chat->set_message(data.GetMessage());
+
+    size_t size = message.ByteSizeLong(); 
+    void *buffer = malloc(size);
+    message.SerializeToArray(buffer, size);
+
+    return std::string( (char *)buffer );
+}
+
+bool Message::ParseChatRequestMessage(std::string message, IChatRequestData& data)
+{
+    blokus::Message in;
+    in.ParseFromString(message);
+    
+    spdlog::get("console")->debug("Message::ParseChatRequestMessage() - {}", in.DebugString());
+
+    data.SetMessage(in.request().chat_req().message());
+    data.SetUsername(in.request().chat_req().username());
+
+    return true;
+}
+
 blokus::Piece Message::ConvertPieceToMessageEnum(PieceType type)
 {
     switch ( type )

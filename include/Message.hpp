@@ -18,10 +18,13 @@
 #include "IPlayerMoveMessage.hpp"
 #include "IPlayerMoveRequestData.hpp"
 
+#include "IChatMessage.hpp"
+#include "IChatRequestData.hpp"
+
 #include <Player.hpp>
 #include <PieceMove.hpp>
 
-class Message : public IRegisterMessage, public IStartGameMessage, public IPlayerMoveMessage
+class Message : public IRegisterMessage, public IStartGameMessage, public IPlayerMoveMessage, public IChatMessage
 {
     public:
         Message();
@@ -52,6 +55,14 @@ class Message : public IRegisterMessage, public IStartGameMessage, public IPlaye
         std::string BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMoveRequestData& data);
 
         bool ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequestData& data);
+        // ==============================================================================================================
+
+        // ==============================================================================================================
+        // Chat
+        // ==============================================================================================================
+        std::string BuildChatRequestMessage(IMessageBase& base, IChatRequestData& data);
+
+        bool ParseChatRequestMessage(std::string message, IChatRequestData& data);
         // ==============================================================================================================
         
 

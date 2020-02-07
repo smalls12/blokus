@@ -12,6 +12,8 @@
 
 #include "PlayerMoveRequestData.hpp"
 
+#include "ChatRequestData.hpp"
+
 MessageProcessor::MessageProcessor()
 :   mRegistrationRequestEndpoint(),
     mRegistrationSuccessfulEndpoint(),
@@ -82,6 +84,16 @@ bool MessageProcessor::ProcessMessage(std::string data)
             Message m;
             m.ParsePlayerMoveRequestMessage(data, playerMoveRequestData);
             mPlayerMoveEndpoint(playerMoveRequestData);
+            break;
+        }
+        case MessageType::CHAT_REQUEST:
+        case MessageType::CHAT_RESPONSE:
+        {
+            ChatRequestData chatRequestData;
+
+            Message m;
+            m.ParseChatRequestMessage(data, chatRequestData);
+            mChatEndpoint(chatRequestData);
             break;
         }
         default:

@@ -23,6 +23,7 @@
 #include "CalculatePieceScore.hpp"
 #include "DrawBoard.hpp"
 #include "DrawPiecesOnBoard.hpp"
+#include "ChatRequestData.hpp"
 
 // =============================================================
 // NOTE
@@ -46,6 +47,12 @@ namespace
     OverlayBoard overlayBoard;
 
     static bool selected = false;
+
+    int ListView000ScrollIndex = 0;
+    int ListView000Active = 0;
+
+    char textBoxText[64] = "Text box";
+    bool textBoxEditMode = false;
 }
 
 #ifdef BLUE
@@ -77,7 +84,9 @@ GameScreen::GameScreen(IGameSettings& settings,
                        ProcessPlayerMove& processPlayerMove,
                        PlayerTurnManager& playerTurnManager,
                        InitialMoveIndicator& initialMoveIndicator,
-                       PlayerScores& playerScores   )
+                       PlayerScores& playerScores,
+                       ChatRoom& chatRoom,
+                       ProcessChatMessage& processChatMessage   )
 :   mSettings(settings),
     mMessageProcessor(messageProcessor),
     mReadGameNotification(readGameNotification),
@@ -86,6 +95,8 @@ GameScreen::GameScreen(IGameSettings& settings,
     mPlayerTurnManager(playerTurnManager),
     mInitialMoveIndicator(initialMoveIndicator),
     mPlayerScores(playerScores),
+    mChatRoom(chatRoom),
+    mProcessChatMessage(processChatMessage),
     mGamePieceBank(),
     mPieceSelector(),
     mSelectedPieceType(mPieceSelector.GetNextPiece()),
@@ -212,7 +223,7 @@ bool GameScreen::ProcessRemotePlayerMove(IPlayerMoveRequestData& data)
 // Update game (one frame)
 void GameScreen::UpdateGame(void)
 {
-    if (!gameOver)
+    if (!gameOver && !textBoxEditMode)
     {
         if ( IsKeyPressed('P') )
         {
@@ -315,6 +326,28 @@ void GameScreen::UpdateGame(void)
                     selected = true;
                 }
             }
+        }
+    }
+    else if (textBoxEditMode)
+    {
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            // message data
+            std::string uuid = mPlayerManager.GetLocalPlayerUniqueIdentifier();
+            std::shared_ptr<Player> player;
+            mPlayerManager.GetPlayer(uuid, player);
+
+            std::string username = player->getUsername();
+            std::string message = std::string(textBoxText);
+
+            // add to local chat room
+            mChatRoom.AddMessage(username, message);
+
+            // process chat move
+            ChatRequestData chatRequestData;
+            chatRequestData.SetUsername(username);
+            chatRequestData.SetMessage(message);
+            mProcessChatMessage.Process(chatRequestData);
         }
     }
     else
@@ -430,27 +463,27 @@ void GameScreen::DrawScores()
     {
         case GameConfiguration::TWO_PLAYER:
         {
-            GuiLabel((Rectangle){620, 50, 40, 20}, "Player1 : ");
-            GuiLabel((Rectangle){660, 50, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_ONE)).c_str());
+            GuiLabel((Rectangle){620, 50, 60, 20}, "Player1 : ");
+            GuiLabel((Rectangle){680, 50, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_ONE)).c_str());
 
-            GuiLabel((Rectangle){620, 70, 40, 20}, "Player2 : ");
-            GuiLabel((Rectangle){660, 70, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_TWO)).c_str());
+            GuiLabel((Rectangle){620, 70, 60, 20}, "Player2 : ");
+            GuiLabel((Rectangle){680, 70, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_TWO)).c_str());
 
             break;
         }
         case GameConfiguration::FOUR_PLAYER:
         {
-            GuiLabel((Rectangle){620, 50, 40, 20}, "Player1 : ");
-            GuiLabel((Rectangle){660, 50, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_ONE)).c_str());
+            GuiLabel((Rectangle){620, 50, 60, 20}, "Player1 : ");
+            GuiLabel((Rectangle){680, 50, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_ONE)).c_str());
 
-            GuiLabel((Rectangle){620, 70, 40, 20}, "Player2 : ");
-            GuiLabel((Rectangle){660, 70, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_TWO)).c_str());
+            GuiLabel((Rectangle){620, 70, 60, 20}, "Player2 : ");
+            GuiLabel((Rectangle){680, 70, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_TWO)).c_str());
 
-            GuiLabel((Rectangle){620, 90, 40, 20}, "Player3 : ");
-            GuiLabel((Rectangle){660, 90, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_THREE)).c_str());
+            GuiLabel((Rectangle){620, 90, 60, 20}, "Player3 : ");
+            GuiLabel((Rectangle){680, 90, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_THREE)).c_str());
 
-            GuiLabel((Rectangle){620, 110, 40, 20}, "Player4 : ");
-            GuiLabel((Rectangle){660, 110, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_FOUR)).c_str());
+            GuiLabel((Rectangle){620, 110, 60, 20}, "Player4 : ");
+            GuiLabel((Rectangle){680, 110, 50, 20}, std::to_string(mPlayerScores.GetScore(PlayerId::PLAYER_FOUR)).c_str());
             break;
         }
         default:
@@ -459,6 +492,34 @@ void GameScreen::DrawScores()
             break;
         }
     }
+}
+
+bool GameScreen::ProcessRemoteChatMessage(IChatRequestData& data)
+{
+    mChatRoom.AddMessage(data.GetUsername(), data.GetMessage());
+    return true;
+}
+
+void GameScreen::DrawChatRoom()
+{
+    GuiLabel((Rectangle){620, 220, 50, 20}, "Chat");
+
+    std::stringstream ss;
+
+    BlokusChatMessages currentMessages;
+    currentMessages = mChatRoom.GetMessages();
+    BlokusChatMessages::iterator it;
+    for (it = currentMessages.begin(); it != currentMessages.end(); ++it)
+    {
+        ss << it->first;
+        ss << " : ";
+        ss << it->second;
+        ss << ";";
+    }
+
+    ListView000Active = GuiListView((Rectangle){ 620, 250, 160, 300 }, ss.str().c_str(), &ListView000ScrollIndex, ListView000Active);
+
+    if (GuiTextBox((Rectangle){ 620, 560, 160, 20 }, textBoxText, 64, textBoxEditMode)) textBoxEditMode = !textBoxEditMode;
 }
 
 // Draw game (one frame)
@@ -498,6 +559,7 @@ void GameScreen::DrawGame(void)
         }
 
         DrawScores();
+        DrawChatRoom();
         
         if (pause)
         {

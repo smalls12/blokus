@@ -10,6 +10,8 @@
 
 #include "IPlayerMoveRequestData.hpp"
 
+#include "IChatRequestData.hpp"
+
 #include "spdlog/spdlog.h"
 
 class MessageProcessor
@@ -31,6 +33,9 @@ class MessageProcessor
         // Player Move
         void SetPlayerMoveEndpoint(std::function<bool(IPlayerMoveRequestData&)> func) { mPlayerMoveEndpoint = func; }
 
+        // Chat
+        void SetChatEndpoint(std::function<bool(IChatRequestData&)> func) { mChatEndpoint = func; }
+
     private:
         // Registration
         std::function<bool(IRegisterRequest&)>                  mRegistrationRequestEndpoint;
@@ -42,4 +47,7 @@ class MessageProcessor
 
         // Player Move
         std::function<bool(IPlayerMoveRequestData&)>            mPlayerMoveEndpoint;
+
+        // Chat
+        std::function<bool(IChatRequestData&)>                  mChatEndpoint;
 };

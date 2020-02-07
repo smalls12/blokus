@@ -70,6 +70,10 @@ set ( src_blokus
       src/PlayerTurnManager.cpp
       src/InitialMoveIndicator.cpp
       src/PlayerScores.cpp
+      src/ChatRoom.cpp
+      src/ProcessChatMessage.cpp
+      src/ChatRequest.cpp
+      src/ChatRequestData.cpp
       src/main.cpp
 )
 
@@ -120,6 +124,7 @@ set ( src_blokus_test
       src/PlayerTurnManager.cpp
       src/BuildGamePieces.cpp
       src/GamePieceBank.cpp
+      src/ChatRoom.cpp
       test/TestSuiteSetup.cpp
       test/TestSuiteCalculatePadding.cpp
       test/TestSuitePieceSelector.cpp
@@ -131,6 +136,7 @@ set ( src_blokus_test
       test/TestSuitePadding.cpp
       test/TestSuitePlayerTurnManager.cpp
       test/TestSuiteGamePieceBank.cpp
+      test/TestSuiteChatRoom.cpp
 )
 
 add_executable( test_blokus ${src_blokus_test} )

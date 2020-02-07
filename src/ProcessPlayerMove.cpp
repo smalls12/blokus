@@ -1,5 +1,7 @@
 #include "ProcessPlayerMove.hpp"
 
+#include "spdlog/spdlog.h"
+
 ProcessPlayerMove::ProcessPlayerMove(IGameLobby& lobby, IPlayerMoveRequest& request)
 :   mLobby(lobby),
     mRequest(request)

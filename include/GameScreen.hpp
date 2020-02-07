@@ -8,6 +8,8 @@
 #include "PlayerTurnManager.hpp"
 #include "InitialMoveIndicator.hpp"
 #include "PlayerScores.hpp"
+#include "ChatRoom.hpp"
+#include "ProcessChatMessage.hpp"
 
 #include "IPlayerMoveRequestData.hpp"
 
@@ -25,10 +27,13 @@ class GameScreen
                     ProcessPlayerMove& processPlayerMove,
                     PlayerTurnManager& playerTurnManager,
                     InitialMoveIndicator& initialMoveIndicator,
-                    PlayerScores& playerScores   );
+                    PlayerScores& playerScores,
+                    ChatRoom& chatRoom,
+                    ProcessChatMessage& processChatMessage   );
         ~GameScreen();
 
         bool ProcessRemotePlayerMove(IPlayerMoveRequestData& data);
+        bool ProcessRemoteChatMessage(IChatRequestData& data);
         bool Show();
     
     protected:
@@ -40,6 +45,8 @@ class GameScreen
         PlayerTurnManager&          mPlayerTurnManager;
         InitialMoveIndicator&       mInitialMoveIndicator;
         PlayerScores&               mPlayerScores;
+        ChatRoom&                   mChatRoom;
+        ProcessChatMessage&         mProcessChatMessage;
 
     private:
         // private methods
@@ -50,6 +57,7 @@ class GameScreen
         void DrawGamePieces();
         void DrawSelector();
         void DrawScores();
+        void DrawChatRoom();
         void DrawGame();
         void CheckForNotification();
         void UpdateDrawFrame();

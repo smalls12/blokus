@@ -38,6 +38,10 @@ extern "C" {
 #include "PlayerTurnManager.hpp"
 #include "InitialMoveIndicator.hpp"
 
+#include "ChatRoom.hpp"
+#include "ChatRequest.hpp"
+#include "ProcessChatMessage.hpp"
+
 #include <sstream>
 
 #include "spdlog/spdlog.h"
@@ -139,10 +143,18 @@ void ShowGameLobby_StartGame(Game gm)
 
     PlayerScores playerScores(gm);
 
+    ChatRoom chatRoom(30);
+
+    // build player move object
+    MessageBase chatMessageBase(network);
+    ChatRequest chatRequest(m, chatMessageBase);
+    ProcessChatMessage processChatMessage(gameLobby, chatRequest);
+
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator, playerScores);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator, playerScores, chatRoom, processChatMessage);
     
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
+    mp.SetChatEndpoint(std::bind(&GameScreen::ProcessRemoteChatMessage, &gameScreen, _1));
 
     // display the game screen on the gui
     gameScreen.Show();
@@ -223,10 +235,18 @@ void ShowGameLobby_JoinGame(Game gm)
 
     PlayerScores playerScores(gm);
 
+    ChatRoom chatRoom(30);
+
+    // build player move object
+    MessageBase chatMessageBase(network);
+    ChatRequest chatRequest(m, chatMessageBase);
+    ProcessChatMessage processChatMessage(gameLobby, chatRequest);
+
     // create the game screen
-    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator, playerScores);
+    GameScreen gameScreen(gm, mp, rgn, playerManager, processPlayerMove, playerTurnManager, initialMoveIndicator, playerScores, chatRoom, processChatMessage);
 
     mp.SetPlayerMoveEndpoint(std::bind(&GameScreen::ProcessRemotePlayerMove, &gameScreen, _1));
+    mp.SetChatEndpoint(std::bind(&GameScreen::ProcessRemoteChatMessage, &gameScreen, _1));
 
     // display the game screen on the gui
     gameScreen.Show();
