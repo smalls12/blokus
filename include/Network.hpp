@@ -6,6 +6,9 @@
  * 
  * ========================================================= */
 
+#include "ICompress.hpp"
+#include "IDecompress.hpp"
+
 #include "INetworkConnection.hpp"
 #include "INetworkConfigure.hpp"
 #include "INetworkLobby.hpp"
@@ -23,7 +26,7 @@ extern "C" {
 class Network : public INetworkConnection, public INetworkConfigure, public INetworkLobby, public INetworkSend, public INetworkReceive, public INetworkSearch
 {
     public:
-        Network(std::string nodeName);
+        Network(std::string nodeName, ICompress& compress, IDecompress& decompress);
         ~Network();
 
         // Connect into the network
@@ -75,6 +78,10 @@ class Network : public INetworkConnection, public INetworkConfigure, public INet
     
     private:
         std::string     mNodeName;
+
+        ICompress&      mCompression;
+        IDecompress&    mDecompression;
+
         zyre_t          *mNode;
         zpoller_t       *mPoller;
 };

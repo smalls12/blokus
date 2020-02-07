@@ -5,6 +5,8 @@ extern "C" {
 #include "raygui.h"
 }
 
+#include "BlokusCompressionEngine.hpp"
+
 #include "Network.hpp"
 
 #include "StartScreen.hpp"
@@ -59,9 +61,11 @@ using namespace std::placeholders;  // for _1, _2, _3...
 
 Game ShowStartScreen()
 {
+    // build compression engine
+    BlokusCompressionEngine blokusCompressionEngine;
+
     // start looking for active games
-    // NetworkConnection nc("searching");
-    Network network("searching");
+    Network network("searching", blokusCompressionEngine, blokusCompressionEngine);
     network.Connect();
     network.Start();
 
@@ -78,8 +82,11 @@ void ShowGameLobby_StartGame(Game gm)
 {
     spdlog::get("console")->info("Blokus::Starting Game [ {} ]!", gm.GetGameName());
 
+    // build compression engine
+    BlokusCompressionEngine blokusCompressionEngine;
+
     // create network connection
-    Network network(gm.GetUsername());
+    Network network(gm.GetUsername(), blokusCompressionEngine, blokusCompressionEngine);
     network.Connect();
     network.Configure(gm.GetGameName());
     network.Start();
@@ -168,8 +175,11 @@ void ShowGameLobby_JoinGame(Game gm)
 {
     spdlog::get("console")->info("Blokus::Joining Game [ {} ]!", gm.GetGameName());
 
+    // build compression engine
+    BlokusCompressionEngine blokusCompressionEngine;
+
     // create network connection
-    Network network(gm.GetUsername());
+    Network network(gm.GetUsername(), blokusCompressionEngine, blokusCompressionEngine);
     network.Connect();
     network.Start();
     network.JoinGroup(gm.GetGameName());

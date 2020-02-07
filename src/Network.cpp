@@ -10,8 +10,10 @@
 
 #include "spdlog/spdlog.h"
 
-Network::Network(std::string nodeName)
-:   mNodeName(nodeName)
+Network::Network(std::string nodeName, ICompress& compress, IDecompress& decompress)
+:   mNodeName(nodeName),
+    mCompression(compress),
+    mDecompression(decompress)
 {
     spdlog::get("console")->info("Network::Network() - Node {}", mNodeName);
 }
@@ -121,10 +123,21 @@ bool Network::LeaveGroup(std::string groupName)
 // Send to the network
 int Network::Send(std::string groupName, std::string message)
 {
-    spdlog::get("console")->info("Network::Send()");
+    spdlog::get("console")->info("Network::Compressing message");
+
+    std::string compressed;
+    mCompression.Compress(message, compressed);
+
+    const char* c_compressed = compressed.c_str();
+    spdlog::get("console")->info("Network::Sending message size {}", compressed.size());
 
     int rc = 0;
-    rc = zyre_shouts(mNode, groupName.c_str(), "%s", message.c_str());
+    // rc = zyre_shouts(mNode, groupName.c_str(), "%s", c_compressed);
+
+    zmsg_t *msg = zmsg_new();
+    rc = zmsg_addmem(msg, compressed.c_str(), compressed.size());
+    rc = zyre_shout(mNode, groupName.c_str(), &msg);
+
     return rc;
 }
 
@@ -145,117 +158,6 @@ bool Network::Poll()
 
     return true;
 }
-
-// Receive from the network
-// bool Network::Receive(std::string groupName, GameNotification& notification)
-// {
-//     spdlog::get("console")->info("Network::Receive()");
-
-//     zyre_event_t *event = zyre_event_new( mNode );
-//     if( event )
-//     {
-//         // zyre_event_print( event );
-
-//         const char *value = zyre_event_group(event);
-//         if( value )
-//         {
-//             std::string group(value);
-//             spdlog::get("console")->trace("Network::Receive() - Notification from Group {}", group);
-
-//             if( group != groupName )
-//             {
-//                 spdlog::get("console")->warn("Network::Receive() - Not a notification for this game.");
-//                 return false;
-//             }
-//         }
-//         else
-//         {
-//             spdlog::get("stderr")->warn("Network::Receive() - Not a notification for this game.");
-//             return false;
-//         }
-
-//         std::string name(zyre_event_peer_name( event ));
-//         std::string uuid(zyre_event_peer_uuid( event ));
-
-//         // event type
-//         const char *type = zyre_event_type(event);
-//         NotificationType nt = NotificationType::UNKNOWN;
-//         if (streq(type, "JOIN"))
-//         {
-//             nt = NotificationType::JOIN;
-//         }
-//         else if (streq(type, "LEAVE"))
-//         {
-//             nt = NotificationType::LEAVE;
-//         }
-//         else if (streq(type, "SHOUT"))
-//         {
-//             nt = NotificationType::SHOUT;
-//         }
-//         else if (streq(type, "WHISPER"))
-//         {
-//             nt = NotificationType::WHISPER;
-//         }
-//         else if (streq(type, "ENTER"))
-//         {
-//             nt = NotificationType::ENTER;
-//         }
-//         else if (streq(type, "EXIT"))
-//         {
-//             nt = NotificationType::EXIT;
-//         }
-//         else if (streq(type, "EVASIVE"))
-//         {
-//             nt = NotificationType::EVASIVE;
-//         }
-//         else if (streq(type, "SILENT"))
-//         {
-//             nt = NotificationType::SILENT;
-//         }
-//         else if (streq(type, "STOP"))
-//         {
-//             nt = NotificationType::STOP;
-//         }
-
-//         // event data
-//         // only pertains to SHOUT and WHISPER
-//         std::string data;
-//         switch(nt)
-//         {
-//             case NotificationType::SHOUT:
-//             case NotificationType::WHISPER:
-//             {
-//                 zmsg_t *msg = zyre_event_get_msg(event);
-//                 char *raw = zmsg_popstr(msg);
-//                 data = std::string(raw);
-//                 zmsg_destroy (&msg);
-//                 free (raw);
-//                 break;
-//             }
-//             case NotificationType::JOIN:
-//             case NotificationType::LEAVE:
-//             case NotificationType::ENTER:
-//             case NotificationType::EXIT:
-//             case NotificationType::EVASIVE:
-//             case NotificationType::SILENT:
-//             case NotificationType::STOP:
-//             default:
-//                 break;
-//         }
-
-//         zyre_event_destroy( &event );
-
-//         spdlog::get("console")->trace("Network::Receive() - Done");   
-
-//         notification = GameNotification(name, uuid, nt, data);
-//         return true;
-//     }
-//     else
-//     {
-//         spdlog::get("stderr")->error("Network::Receive() - Error");
-//         return false;
-//     }
-// }
 
 // Receive from the network
 bool Network::Receive(std::string groupName, std::vector<std::string>& messages)
@@ -292,17 +194,21 @@ bool Network::Receive(std::string groupName, std::vector<std::string>& messages)
 
         messages.push_back( type );
 
-        spdlog::get("console")->trace("Network::Receive() - 1"); 
         zmsg_t *msg = zyre_event_get_msg( event );
         if( msg )
         {
-            spdlog::get("console")->trace("Network::Receive() - 2"); 
-            char *raw = zmsg_popstr( msg );
-            if( raw )
+            // spdlog::get("console")->info("Network::Message, raw size {}", zmsg_content_size(msg));
+            size_t raw_size = zmsg_content_size( msg );
+            char *raw_data = zmsg_popstr( msg );
+            if( raw_data )
             {
-                spdlog::get("console")->trace("Network::Receive() - 3"); 
-                messages.push_back( std::string( raw ) );
-                free( raw );
+                std::string raw_string( raw_data, raw_size );
+                free( raw_data );
+
+                std::string decompressed;
+                mDecompression.Decompress(raw_string, decompressed);
+
+                messages.push_back( decompressed );
             }
             else
             {
@@ -313,7 +219,6 @@ bool Network::Receive(std::string groupName, std::vector<std::string>& messages)
         }
         else
         {
-            spdlog::get("console")->trace("Network::Receive() - 5");
             messages.push_back( std::string( std::string("") ) );
         }
 

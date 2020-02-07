@@ -74,6 +74,7 @@ set ( src_blokus
       src/ProcessChatMessage.cpp
       src/ChatRequest.cpp
       src/ChatRequestData.cpp
+      src/BlokusCompressionEngine.cpp
       src/main.cpp
 )
 
@@ -103,6 +104,9 @@ target_link_libraries( ${PROJECT_NAME} zmq )
 
 # MESSAGING
 target_link_libraries( ${PROJECT_NAME} ${Protobuf_LIBRARIES} )
+
+# COMPRESSION
+target_link_libraries( ${PROJECT_NAME} snappy )
 
 # LOGGING
 target_link_libraries( ${PROJECT_NAME} spdlog )

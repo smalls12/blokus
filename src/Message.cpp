@@ -33,11 +33,7 @@ std::string Message::BuildRegistrationRequestMessage(IRegisterRequest& request)
     register_req->set_username(request.GetUsername());
     register_req->set_uuid(request.GetUuid());
 
-    size_t size = message.ByteSizeLong(); 
-    void *buffer = malloc(size);
-    message.SerializeToArray(buffer, size);
-
-    return std::string( (char *)buffer );
+    return message.SerializeAsString();
 }
 
 std::string Message::BuildRegistrationResponseMessage(IRegistrationSuccessful& response)
@@ -57,11 +53,7 @@ std::string Message::BuildRegistrationResponseMessage(IRegistrationSuccessful& r
     _register->set_username(response.GetUsername());
     _register->set_uuid(response.GetUuid());
 
-    size_t size = _message.ByteSizeLong(); 
-    void *buffer = malloc(size);
-    _message.SerializeToArray(buffer, size);
-
-    return std::string( (char *)buffer );
+    return _message.SerializeAsString();
 }
 
 std::string Message::BuildRegistrationResponseMessage(IRegistrationUnsuccessful& response)
@@ -79,11 +71,7 @@ std::string Message::BuildRegistrationResponseMessage(IRegistrationUnsuccessful&
     _register->set_status(blokus::RegisterResp::UNSUCCESSFUL);
     _register->set_error("blah");
 
-    size_t size = _message.ByteSizeLong(); 
-    void *buffer = malloc(size);
-    _message.SerializeToArray(buffer, size);
-
-    return std::string( (char *)buffer );
+    return _message.SerializeAsString();
 }
 
 bool Message::ParseRegistrationRequestMessage(std::string message, IRegisterRequest& request)
@@ -194,11 +182,7 @@ std::string Message::BuildStartGameRequestMessage(IMessageBase& base, IStartGame
         } 
     }
 
-    size_t size = message.ByteSizeLong(); 
-    void *buffer = malloc(size);
-    message.SerializeToArray(buffer, size);
-
-    return std::string( (char *)buffer );
+    return message.SerializeAsString();
 }
 
 bool Message::ParseStartGameRequestMessage(std::string message, IStartGameRequestData& data)
@@ -347,11 +331,7 @@ std::string Message::BuildPlayerMoveRequestMessage(IMessageBase& base, IPlayerMo
     location->set_x_position(data.GetLocation().GetX());
     location->set_y_position(data.GetLocation().GetY());
 
-    size_t size = message.ByteSizeLong(); 
-    void *buffer = malloc(size);
-    message.SerializeToArray(buffer, size);
-
-    return std::string( (char *)buffer );
+    return message.SerializeAsString();
 }
 
 bool Message::ParsePlayerMoveRequestMessage(std::string message, IPlayerMoveRequestData& data)
@@ -448,11 +428,7 @@ std::string Message::BuildChatRequestMessage(IMessageBase& base, IChatRequestDat
     _chat->set_username(data.GetUsername());
     _chat->set_message(data.GetMessage());
 
-    size_t size = message.ByteSizeLong(); 
-    void *buffer = malloc(size);
-    message.SerializeToArray(buffer, size);
-
-    return std::string( (char *)buffer );
+    return message.SerializeAsString();
 }
 
 bool Message::ParseChatRequestMessage(std::string message, IChatRequestData& data)
@@ -551,27 +527,3 @@ PieceType Message::ParseMessageEnumToPiece(blokus::Piece type)
 
     return PieceType::I5;
 }
-
-// blokus::Message Message::BuildEndGameReq()
-// {
-//     blokus::Message message;
-//     message.set_type(blokus::Message::RESPONSE);
-
-//     // initialize PlayerMove message
-//     blokus::Response *blokus_response = message.mutable_response();
-//     blokus_response->set_type(blokus::END_GAME);
-
-//     return message;
-// }
-
-// blokus::Message Message::BuildEndGameResp()
-// {
-//     blokus::Message message;
-//     message.set_type(blokus::Message::RESPONSE);
-
-//     // initialize PlayerMove message
-//     blokus::Response *blokus_response = message.mutable_response();
-//     blokus_response->set_type(blokus::END_GAME);
-
-//     return message;
-// }
