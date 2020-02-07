@@ -18,8 +18,8 @@ All over these libraries are cross platform and should run on x86, ARM, macOS an
 At this point, only working on x86.
 
 ## Lower Level Design
-The games networking is provided by the zyre library which runs on zeromq.
+The games networking is provided by the zyre library which runs on zeromq.  
 zyre is used to create virtual networks between networked nodes.
 
-Once a game has begun, messages are exchanged over the zyre network.
+Once a game has begun, messages are exchanged over the zyre network.  
 The messages are generated with protobuf and indicate the start of a game, player moves, and chat messages.
